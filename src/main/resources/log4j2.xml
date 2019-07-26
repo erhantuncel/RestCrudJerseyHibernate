@@ -11,5 +11,10 @@
 		<Root level="info">
 			<AppenderRef ref="Console" />
 		</Root>
+		
+		<!-- Log everything in hibernate -->
+		<Logger name="org.hibernate" level="info" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
 	</Loggers>
 </Configuration>

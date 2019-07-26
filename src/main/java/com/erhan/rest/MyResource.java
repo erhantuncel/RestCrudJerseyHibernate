@@ -7,6 +7,12 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
+
+import com.erhan.rest.util.HibernateUtil;
 
 /**
  * Root resource (exposed at "myresource" path)
@@ -25,6 +31,13 @@ public class MyResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
+    	SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+    	Session session = sessionFactory.openSession();
+    	Transaction transaction = session.beginTransaction();
+    	logger.info("Transaction status is active = " + transaction.getStatus().isOneOf(TransactionStatus.ACTIVE));
+    	transaction.commit();
+    	logger.info("Transaction status is active = " + transaction.getStatus().isOneOf(TransactionStatus.ACTIVE));
+    	
     	logger.info("getResource is invoked.");
         return "Got it!";
     }
