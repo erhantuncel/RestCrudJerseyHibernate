@@ -2,6 +2,7 @@ package com.erhan.rest.model;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -45,9 +46,24 @@ public class Staff {
 	@NotNull
 	private Date registeredTime;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "department_id")
 	private Department department;
+
+	public Staff() {
+	
+	}
+	
+	public Staff(@NotEmpty String firstName, @NotEmpty String lastName, @NotEmpty String phone, String email,
+			@NotNull Date registeredTime, Department department) {
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.phone = phone;
+		this.email = email;
+		this.registeredTime = registeredTime;
+		this.department = department;
+	}
 
 	public int getId() {
 		return id;

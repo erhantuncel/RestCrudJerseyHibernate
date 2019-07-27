@@ -3,6 +3,7 @@ package com.erhan.rest.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -26,9 +27,18 @@ public class Department {
 	@NotEmpty
 	private String departmentName;
 
-	@OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "department", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private Set<Staff> staffList = new HashSet<>();
 	
+	public Department() {
+		
+	}
+	
+	public Department(@NotEmpty String departmentName) {
+		super();
+		this.departmentName = departmentName;
+	}
+
 	public int getId() {
 		return id;
 	}
