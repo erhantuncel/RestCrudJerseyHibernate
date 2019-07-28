@@ -81,10 +81,6 @@ public class DepartmentServiceTest {
 	public void testFindById() {
 		logger.info("testFindById is started.");
 		
-//		List<Department> departmentList = new ArrayList<Department>();
-//		departmentList.add(new Department("Üretim"));
-//		departmentList.add(new Department("Finans"));
-		
 		when(mockDepartmentDAO.findById(2)).thenReturn(department);
 		
 		Department findById = departmentService.findById(2);
