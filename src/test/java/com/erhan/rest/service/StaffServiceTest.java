@@ -3,6 +3,7 @@ package com.erhan.rest.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +32,7 @@ public class StaffServiceTest {
 	StaffDAO mockStaffDAO;
 	
 	@InjectMocks
-	StaffService staffService;
+	StaffServiceImpl staffService;
 	
 	private Staff staff;
 	private Department department;
@@ -52,9 +53,7 @@ public class StaffServiceTest {
 		
 		staffService.create(staff);
 		
-		verify(mockStaffDAO, times(1)).openSessionWithTransaction();
-		verify(mockStaffDAO, times(1)).create(any(Staff.class));
-		verify(mockStaffDAO, times(1)).closeCurrentSessionWithTransaction();
+		verify(mockStaffDAO, times(1)).save(any(Staff.class));
 		
 		logger.info("testCreate is successful.");
 	}
@@ -65,9 +64,7 @@ public class StaffServiceTest {
 		
 		staffService.update(staff);
 		
-		verify(mockStaffDAO, times(1)).openSessionWithTransaction();
-		verify(mockStaffDAO, times(1)).update(any(Staff.class));
-		verify(mockStaffDAO, times(1)).closeCurrentSessionWithTransaction();
+		verify(mockStaffDAO, times(1)).save(any(Staff.class));
 		
 		logger.info("testUpdate is successful.");
 	}
@@ -78,9 +75,7 @@ public class StaffServiceTest {
 		
 		staffService.remove(staff);
 		
-		verify(mockStaffDAO, times(1)).openSessionWithTransaction();
-		verify(mockStaffDAO, times(1)).remove(any(Staff.class));
-		verify(mockStaffDAO, times(1)).closeCurrentSessionWithTransaction();
+		verify(mockStaffDAO, times(1)).delete(any(Staff.class));
 		
 		logger.info("testRemove is successful.");
 	}
@@ -89,7 +84,7 @@ public class StaffServiceTest {
 	public void testFindById() {
 		logger.info("testFindById is started.");
 		
-		when(mockStaffDAO.findById(2)).thenReturn(staff);
+		when(mockStaffDAO.findById(2)).thenReturn(Optional.of(staff));
 		
 		Staff findById = staffService.findById(2);
 		assertNotNull(findById);
@@ -99,9 +94,7 @@ public class StaffServiceTest {
 		assertEquals(findById.getEmail(), staff.getEmail());
 		assertEquals(findById.getRegisteredTime(), staff.getRegisteredTime());
 		
-		verify(mockStaffDAO, times(1)).openSessionWithTransaction();
 		verify(mockStaffDAO, times(1)).findById(anyInt());
-		verify(mockStaffDAO, times(1)).closeCurrentSessionWithTransaction();
 		
 		logger.info("testFindById is successful.");
 	}
@@ -121,9 +114,7 @@ public class StaffServiceTest {
 		assertEquals(allStaffs.get(0).getEmail(), staff.getEmail());
 		assertEquals(allStaffs.get(0).getRegisteredTime(), staff.getRegisteredTime());
 		
-		verify(mockStaffDAO, times(1)).openSessionWithTransaction();
 		verify(mockStaffDAO, times(1)).findAll();
-		verify(mockStaffDAO, times(1)).closeCurrentSessionWithTransaction();
 		
 		logger.info("testFindAll is successful.");
 	}
@@ -132,7 +123,7 @@ public class StaffServiceTest {
 	public void testFindByFirstName() {
 		logger.info("testFindByFirstName is started.");
 		
-		when(mockStaffDAO.findByFirtsName(anyString())).thenReturn(staffList);
+		when(mockStaffDAO.findByFirstName(anyString())).thenReturn(staffList);
 		
 		List<Staff> findByFirstName = staffService.findByFirstName("Ahmet");
 		assertNotNull(findByFirstName);
@@ -143,9 +134,7 @@ public class StaffServiceTest {
 		assertEquals(findByFirstName.get(1).getEmail(), staffList.get(1).getEmail());
 		assertEquals(findByFirstName.get(1).getRegisteredTime(), staffList.get(1).getRegisteredTime());
 		
-		verify(mockStaffDAO, times(1)).openSessionWithTransaction();
-		verify(mockStaffDAO, times(1)).findByFirtsName(anyString());
-		verify(mockStaffDAO, times(1)).closeCurrentSessionWithTransaction();
+		verify(mockStaffDAO, times(1)).findByFirstName(anyString());
 		
 		logger.info("testFindByFirstName is successful.");
 	}
@@ -165,9 +154,7 @@ public class StaffServiceTest {
 		assertEquals(findByLastName.get(1).getEmail(), staffList.get(1).getEmail());
 		assertEquals(findByLastName.get(1).getRegisteredTime(), staffList.get(1).getRegisteredTime());
 		
-		verify(mockStaffDAO, times(1)).openSessionWithTransaction();
 		verify(mockStaffDAO, times(1)).findByLastName(anyString());
-		verify(mockStaffDAO, times(1)).closeCurrentSessionWithTransaction();
 		
 		logger.info("testFindByLastName is successful.");
 	}
@@ -187,9 +174,7 @@ public class StaffServiceTest {
 		assertEquals(findByPhone.get(1).getEmail(), staffList.get(1).getEmail());
 		assertEquals(findByPhone.get(1).getRegisteredTime(), staffList.get(1).getRegisteredTime());
 		
-		verify(mockStaffDAO, times(1)).openSessionWithTransaction();
 		verify(mockStaffDAO, times(1)).findByPhone(anyString());
-		verify(mockStaffDAO, times(1)).closeCurrentSessionWithTransaction();
 		
 		logger.info("testFindByPhone is successful.");
 	}
@@ -209,9 +194,7 @@ public class StaffServiceTest {
 		assertEquals(findByEmail.get(1).getEmail(), staffList.get(1).getEmail());
 		assertEquals(findByEmail.get(1).getRegisteredTime(), staffList.get(1).getRegisteredTime());
 		
-		verify(mockStaffDAO, times(1)).openSessionWithTransaction();
 		verify(mockStaffDAO, times(1)).findByEmail(anyString());
-		verify(mockStaffDAO, times(1)).closeCurrentSessionWithTransaction();
 		
 		logger.info("testFindByEmail is successful.");
 	}
@@ -223,6 +206,7 @@ public class StaffServiceTest {
 		when(mockStaffDAO.findByRegisteredTime(any(Date.class))).thenReturn(staffList);
 		
 		List<Staff> findByRegisteredTime = staffService.findByRegisteredTime(staffList.get(0).getRegisteredTime());
+		
 		assertNotNull(findByRegisteredTime);
 		assertEquals(findByRegisteredTime.size(), 2);
 		assertEquals(findByRegisteredTime.get(1).getFirstName(), staffList.get(1).getFirstName());
@@ -230,11 +214,28 @@ public class StaffServiceTest {
 		assertEquals(findByRegisteredTime.get(1).getPhone(), staffList.get(1).getPhone());
 		assertEquals(findByRegisteredTime.get(1).getEmail(), staffList.get(1).getEmail());
 		assertEquals(findByRegisteredTime.get(1).getRegisteredTime(), staffList.get(1).getRegisteredTime());
-		
-		verify(mockStaffDAO, times(1)).openSessionWithTransaction();
 		verify(mockStaffDAO, times(1)).findByRegisteredTime(any(Date.class));
-		verify(mockStaffDAO, times(1)).closeCurrentSessionWithTransaction();
 		
 		logger.info("testFindByRegisteredTime is successful.");
+	}
+	
+	@Test
+	public void testFindByDepartment() {
+		logger.info("testFindByDepartment is started.");
+		
+		when(mockStaffDAO.findByDepartment(any(Department.class))).thenReturn(staffList);
+		
+		List<Staff> findByDepartment = staffService.findByDepartment(staffList.get(0).getDepartment());
+		
+		assertNotNull(findByDepartment);
+		assertEquals(findByDepartment.size(), 2);
+		assertEquals(findByDepartment.get(1).getFirstName(), staffList.get(1).getFirstName());
+		assertEquals(findByDepartment.get(1).getLastName(), staffList.get(1).getLastName());
+		assertEquals(findByDepartment.get(1).getPhone(), staffList.get(1).getPhone());
+		assertEquals(findByDepartment.get(1).getEmail(), staffList.get(1).getEmail());
+		assertEquals(findByDepartment.get(1).getRegisteredTime(), staffList.get(1).getRegisteredTime());
+		verify(mockStaffDAO, times(1)).findByDepartment(any(Department.class));
+		
+		logger.info("testFindByDepartment is successful.");
 	}
 }
