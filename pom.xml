@@ -12,14 +12,27 @@
     <build>
         <finalName>RestCrudJerseyHibernate</finalName>
         <plugins>
+        	<plugin>
+        		<groupId>org.eclipse.jetty</groupId>
+			    <artifactId>jetty-maven-plugin</artifactId>
+			    <version>9.4.19.v20190610</version>
+        	</plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>3.8.1</version>
                 <inherited>true</inherited>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-war-plugin</artifactId>
+			    <version>3.2.3</version>
+			    <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
         </plugins>
@@ -40,9 +53,9 @@
     <dependencies>
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
+			<!-- <artifactId>jersey-container-servlet-core</artifactId> -->
             <!-- use the following artifactId if you don't need servlet 2.x compatibility -->
-            <!-- artifactId>jersey-container-servlet</artifactId -->
+            <artifactId>jersey-container-servlet</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
@@ -53,12 +66,49 @@
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-binding</artifactId>
         </dependency>
-        
+        <dependency>
+		    <groupId>org.glassfish.jersey.media</groupId>
+		    <artifactId>jersey-media-json-jackson</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.glassfish.jersey.ext</groupId>
+		    <artifactId>jersey-spring4</artifactId>
+		    <exclusions>
+		    	<exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId> 
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId> 
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId> 
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-aop</artifactId> 
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-web</artifactId> 
+                </exclusion>
+                <exclusion>
+                    <artifactId>jersey-bean-validation</artifactId>
+                    <groupId>org.glassfish.jersey.ext</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>bean-validator</artifactId>
+                    <groupId>org.glassfish.hk2.external</groupId>
+                </exclusion>
+		    </exclusions>
+		</dependency>
         
         <dependency>
 		    <groupId>javax.servlet</groupId>
-		    <artifactId>servlet-api</artifactId>
-		    <version>2.5</version>
+		    <artifactId>javax.servlet-api</artifactId>
+		    <version>3.1.0</version>
 		</dependency>
 		
 		<!-- Junit  -->
@@ -102,11 +152,32 @@
 		</dependency>
 		
 		<!-- Hibernate -->
+<!-- 		<dependency> -->
+<!-- 		   <groupId>org.hibernate</groupId> -->
+<!-- 		   <artifactId>hibernate-core</artifactId> -->
+<!-- 		   <version>5.4.3.Final</version> -->
+<!-- 		</dependency> -->
+			<dependency>
+			    <groupId>org.hibernate</groupId>
+			    <artifactId>hibernate-core</artifactId>
+			    <version>5.4.3.Final</version>
+			</dependency>
+		
+		<!-- Spring  -->
 		<dependency>
-		   <groupId>org.hibernate</groupId>
-		   <artifactId>hibernate-core</artifactId>
-		   <version>5.4.3.Final</version>
+		    <groupId>org.springframework</groupId>
+		    <artifactId>spring-web</artifactId>
+		    <version>5.1.8.RELEASE</version>
 		</dependency>
+
+		<!-- Spring Data -->
+		<dependency>
+		    <groupId>org.springframework.data</groupId>
+		    <artifactId>spring-data-jpa</artifactId>
+		    <version>2.1.9.RELEASE</version>
+		</dependency>
+		
+				
     </dependencies>
     <properties>
         <jersey.version>2.29</jersey.version>
