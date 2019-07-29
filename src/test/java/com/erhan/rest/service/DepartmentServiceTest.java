@@ -13,6 +13,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,9 +45,7 @@ public class DepartmentServiceTest {
 		
 		departmentService.create(department);
 		
-		verify(mockDepartmentDAO, times(1)).openSessionWithTransaction();
-		verify(mockDepartmentDAO, times(1)).create(any(Department.class));
-		verify(mockDepartmentDAO, times(1)).closeCurrentSessionWithTransaction();
+		verify(mockDepartmentDAO, times(1)).save(any(Department.class));
 		
 		logger.info("testCreate is successful.");
 	}
@@ -57,9 +56,7 @@ public class DepartmentServiceTest {
 		
 		departmentService.update(department);
 		
-		verify(mockDepartmentDAO, times(1)).openSessionWithTransaction();
-		verify(mockDepartmentDAO, times(1)).update(any(Department.class));
-		verify(mockDepartmentDAO, times(1)).closeCurrentSessionWithTransaction();
+		verify(mockDepartmentDAO, times(1)).save(any(Department.class));
 		
 		logger.info("testUpdate is successful.");
 	}
@@ -70,9 +67,7 @@ public class DepartmentServiceTest {
 		
 		departmentService.remove(department);
 		
-		verify(mockDepartmentDAO, times(1)).openSessionWithTransaction();
-		verify(mockDepartmentDAO, times(1)).remove(any(Department.class));
-		verify(mockDepartmentDAO, times(1)).closeCurrentSessionWithTransaction();
+		verify(mockDepartmentDAO, times(1)).delete(any(Department.class));
 		
 		logger.info("testRemove is successful.");
 	}
@@ -81,15 +76,13 @@ public class DepartmentServiceTest {
 	public void testFindById() {
 		logger.info("testFindById is started.");
 		
-		when(mockDepartmentDAO.findById(2)).thenReturn(department);
+		when(mockDepartmentDAO.findById(2)).thenReturn(Optional.of(department));
 		
 		Department findById = departmentService.findById(2);
 		assertNotNull(findById);
 		assertEquals(findById.getDepartmentName(), department.getDepartmentName());
 		
-		verify(mockDepartmentDAO, times(1)).openSessionWithTransaction();
 		verify(mockDepartmentDAO, times(1)).findById(anyInt());
-		verify(mockDepartmentDAO, times(1)).closeCurrentSessionWithTransaction();
 		
 		logger.info("testFindById is successful.");
 	}
@@ -109,9 +102,7 @@ public class DepartmentServiceTest {
 		assertEquals(findAll.size(), 2);
 		assertEquals(findAll.get(0).getDepartmentName(), "Üretim");
 		
-		verify(mockDepartmentDAO, times(1)).openSessionWithTransaction();
 		verify(mockDepartmentDAO, times(1)).findAll();
-		verify(mockDepartmentDAO, times(1)).closeCurrentSessionWithTransaction();
 		
 		logger.info("testFindAll is successful.");
 	}
@@ -120,15 +111,13 @@ public class DepartmentServiceTest {
 	public void testFindBtDepartmentName() {
 		logger.info("testFindBtDepartmentName is started.");
 				
-		when(mockDepartmentDAO.findByDepartmentName(anyString())).thenReturn(department);
+		when(mockDepartmentDAO.findFirstByDepartmentName(anyString())).thenReturn(department);
 		
 		Department findByDepartmentName = departmentService.findByDepartmentName("Üretim");
 		assertNotNull(findByDepartmentName);
 		assertEquals(findByDepartmentName.getDepartmentName(), "Üretim");
 		
-		verify(mockDepartmentDAO, times(1)).openSessionWithTransaction();
-		verify(mockDepartmentDAO, times(1)).findByDepartmentName(anyString());
-		verify(mockDepartmentDAO, times(1)).closeCurrentSessionWithTransaction();
+		verify(mockDepartmentDAO, times(1)).findFirstByDepartmentName(anyString());
 		
 		logger.info("testFindBtDepartmentName is successful.");
 	}

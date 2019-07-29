@@ -2,53 +2,46 @@ package com.erhan.rest.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.erhan.rest.dao.DepartmentDAO;
 import com.erhan.rest.model.Department;
 
+@Service
+@Transactional
 public class DepartmentService implements GenericService<Department> {
-
+	
+	@Autowired
 	private DepartmentDAO departmentDAO;
-
-	public DepartmentService(DepartmentDAO departmentDAO) {
-		this.departmentDAO = departmentDAO; 
-		departmentDAO.openSessionWithTransaction();
-	}
 	
 	@Override
 	public void create(Department entity) {
-		departmentDAO.create(entity);
-		departmentDAO.closeCurrentSessionWithTransaction();
+		departmentDAO.save(entity);
 	}
 
 	@Override
 	public void update(Department entity) {
-		departmentDAO.update(entity);
-		departmentDAO.closeCurrentSessionWithTransaction();
+		departmentDAO.save(entity);
 	}
 
 	@Override
 	public void remove(Department entity) {
-		departmentDAO.remove(entity);
-		departmentDAO.closeCurrentSessionWithTransaction();
+		departmentDAO.delete(entity);
 	}
 
 	@Override
-	public Department findById(int id) {
-		Department department = departmentDAO.findById(id);
-		departmentDAO.closeCurrentSessionWithTransaction();
-		return department;
+	public Department findById(Integer id) {
+		return departmentDAO.findById(id).orElse(null);
 	}
 
 	@Override
 	public List<Department> findAll() {
-		List<Department> allDeparments = departmentDAO.findAll();
-		departmentDAO.closeCurrentSessionWithTransaction();
-		return allDeparments;
+		return departmentDAO.findAll();
 	}
 
 	public Department findByDepartmentName(String name) {
-		Department department = departmentDAO.findByDepartmentName(name);
-		departmentDAO.closeCurrentSessionWithTransaction();
-		return department;
+		return departmentDAO.findFirstByDepartmentName(name);
 	}
 }
