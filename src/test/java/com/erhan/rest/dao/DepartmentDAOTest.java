@@ -1,109 +1,90 @@
 package com.erhan.rest.dao;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import com.erhan.rest.model.Department;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Root;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+import com.erhan.rest.config.SpringConfig;
+import com.erhan.rest.model.Department;
+
+@RunWith(SpringRunner.class)
+@EnableJpaRepositories("com.erhan.rest.dao")
+@ComponentScan("com.erhan.rest.model")
+@ContextConfiguration(classes = {SpringConfig.class, DepartmentDAO.class})
 public class DepartmentDAOTest {
 
 	public static final Logger logger = LogManager.getLogger(DepartmentDAOTest.class);
 	
-	@InjectMocks
-	DepartmentDAO departmentDAO;
+	@Autowired
+	private DepartmentDAO departmentDAO;
 	
-	@Mock
-	Session mockSession;
-	
-	@Mock
-	CriteriaBuilder mockCriteriaBuilder;
-	
-	@Mock
-	CriteriaQuery<Department> mockCriteriaQuery;
-	
-	@Mock
-	Root<Department> mockRoot;
-	
-	@Mock
-	Query<Department> mockQuery;
-	
-	private Department department;
-	private List<Department> departmentList;
-	
-	@Before
-	public void setUp() {
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testSave() {
+		logger.info("testSave is started.");
 		
-		department = new Department("Finans");
-		departmentList = new ArrayList<Department>();
-		departmentList.add(new Department("Üretim"));
-		departmentList.add(new Department("Finans"));
+		Department departmentSatis = new Department("Satış");
+		departmentDAO.save(departmentSatis);
+		departmentDAO.flush();
 		
-		when(mockSession.getCriteriaBuilder()).thenReturn(mockCriteriaBuilder);
-		when(mockCriteriaBuilder.createQuery(Department.class)).thenReturn(mockCriteriaQuery);
-		when(mockCriteriaQuery.from(Department.class)).thenReturn(mockRoot);
-		when(mockCriteriaQuery.select(mockRoot)).thenReturn(mockCriteriaQuery);
-		when(mockCriteriaQuery.where(mockCriteriaBuilder.equal(any(Expression.class), any(String.class)))).thenReturn(mockCriteriaQuery);
+		assertNotNull(departmentSatis);
+		assertEquals(departmentSatis.getId(), 4);
 		
-		when(mockSession.createQuery(mockCriteriaQuery)).thenReturn(mockQuery);
-		when(mockQuery.getResultList()).thenReturn(departmentList);
-		when(mockQuery.uniqueResult()).thenReturn(department);
+		logger.info("testSave is successful.");
 	}
 	
 	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
 	public void testFindAll() {
 		logger.info("testFindAll is started.");
 		
 		List<Department> allDepartments = departmentDAO.findAll();
-		assertNotNull(allDepartments);
-		assertEquals(allDepartments.get(0).getDepartmentName(), "Üretim");
 		
-		verifyCommonActions();
-		verify(mockQuery, times(1)).getResultList();
+		assertNotNull(allDepartments);
+		assertEquals(allDepartments.size(), 3);
 		
 		logger.info("testFindAll is successful.");
 	}
 	
 	@Test
-	public void testFindByDepartmentName() {
-		logger.info("testFindByDepartmentName is started.");
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindById() {
+		logger.info("testFindById is started.");
 		
-		Department findByDepartmentName = departmentDAO.findByDepartmentName("Finans");
-		assertNotNull(findByDepartmentName);
-		assertEquals(findByDepartmentName.getDepartmentName(), "Finans");
+		Department deparmentARGE = departmentDAO.findById(2).orElse(null);
 		
-		verifyCommonActions();
-		verify(mockCriteriaQuery, times(1)).where(mockCriteriaBuilder.equal(any(Expression.class), any(String.class)));
-		verify(mockQuery, times(1)).uniqueResult();
+		assertNotNull(deparmentARGE);
+		assertEquals(deparmentARGE.getId(), 2);
+		assertEquals(deparmentARGE.getDepartmentName(), "AR-GE");
 		
-		logger.info("testFindByDepartmentName is successful.");
+		logger.info("testFindById is successful.");
 	}
-
-	private void verifyCommonActions() {
-		verify(mockSession, times(1)).getCriteriaBuilder();
-		verify(mockCriteriaBuilder, times(1)).createQuery(any());
-		verify(mockCriteriaQuery, times(1)).from(Department.class);
-		verify(mockCriteriaQuery, times(1)).select(mockRoot);
-		verify(mockSession, times(1)).createQuery(mockCriteriaQuery);
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindFirstByDepartmentName() {
+		logger.info("testFindFirstByDepartmentName is started.");
+		
+		Department departmentUretim = departmentDAO.findFirstByDepartmentName("Üretim");
+		
+		assertNotNull(departmentUretim);
+		assertEquals(departmentUretim.getId(), 1);
+		assertEquals(departmentUretim.getDepartmentName(), "Üretim");
+		
+		logger.info("testFindFirstByDepartmentName is successful.");
 	}
+	
 }
