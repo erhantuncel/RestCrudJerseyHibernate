@@ -30,7 +30,7 @@ public class DepartmentServiceTest {
 	DepartmentDAO mockDepartmentDAO;
 	
 	@InjectMocks
-	DepartmentService departmentService;
+	DepartmentServiceImpl departmentService;
 	
 	private Department department;
 	
