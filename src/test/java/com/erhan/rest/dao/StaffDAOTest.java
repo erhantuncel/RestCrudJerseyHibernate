@@ -2,184 +2,182 @@ package com.erhan.rest.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Root;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import com.erhan.rest.config.SpringConfig;
 import com.erhan.rest.model.Department;
 import com.erhan.rest.model.Staff;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
+@EnableJpaRepositories("com.erhan.rest.dao")
+@ComponentScan("com.erhan.rest.model")
+@ContextConfiguration(classes = {SpringConfig.class, StaffDAO.class})
 public class StaffDAOTest {
 	
 	public static final Logger logger = LogManager.getLogger(DepartmentDAOTest.class);
 	
-	@InjectMocks
-	StaffDAO staffDAO;
+	@Autowired
+	private StaffDAO staffDAO;
+	
+	@Autowired
+	private DepartmentDAO departmentDAO;
 
-	@Mock
-	Session mockSession;
-	
-	@Mock
-	CriteriaBuilder mockCriteriaBuilder;
-	
-	@Mock
-	CriteriaQuery<Staff> mockCriteriaQuery;
-	
-	@Mock
-	Root<Staff> mockRoot;
-	
-	@Mock
-	Query<Staff> mockQuery;
-	
-	private Department department;
-	
-	@Before
-	public void setUp() {
-		department = new Department("Üretim");
-		List<Staff> staffList = new ArrayList<Staff>();
-		staffList.add(new Staff("Mehmet", "ÇALIŞKAN", "1231231231", "mehmet@abc.com", new Date(), department));
-		staffList.add(new Staff("Ahmet", "TEMBEL", "9879879879", "ahmet@abc.com", new Date(), department));
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testSave() {
+		logger.info("testSave is started.");
 		
-		when(mockSession.getCriteriaBuilder()).thenReturn(mockCriteriaBuilder);
-		when(mockCriteriaBuilder.createQuery(Staff.class)).thenReturn(mockCriteriaQuery);
-		when(mockCriteriaQuery.from(Staff.class)).thenReturn(mockRoot);
-		when(mockCriteriaQuery.select(mockRoot)).thenReturn(mockCriteriaQuery);
-		when(mockCriteriaQuery.where(mockCriteriaBuilder.equal(any(Expression.class), any(String.class)))).thenReturn(mockCriteriaQuery);
-		when(mockCriteriaQuery.where(mockCriteriaBuilder.equal(any(Expression.class), any(Date.class)))).thenReturn(mockCriteriaQuery);
-		when(mockCriteriaQuery.where(mockCriteriaBuilder.equal(any(Expression.class), any(Department.class)))).thenReturn(mockCriteriaQuery);
-		when(mockSession.createQuery(mockCriteriaQuery)).thenReturn(mockQuery);
-		when(mockQuery.getResultList()).thenReturn(staffList);
+		Department departmentSatis = new Department("Satış");
+		Staff staff = new Staff("Mehmet", "ÇALIŞKAN", "1231231231", "mehmet@abc.com", new Date(), departmentSatis);
+		staffDAO.save(staff);
+		staffDAO.flush();
+		
+		assertNotNull(staff.getId());
+		assertEquals(staff.getId(), 4);
+		
+		logger.info("testSave is successful.");
 	}
 	
 	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
 	public void testFindAll() {
 		logger.info("testFindAll is started.");
 		
-		List<Staff> allStaffs = staffDAO.findAll();
-		checkStaffListWithAssertion(allStaffs);
-		
-		verifyCommonActions();
+		List<Staff> allStaff = staffDAO.findAll();
+
+		assertNotNull(allStaff);
+		assertEquals(allStaff.size(), 3);
 		
 		logger.info("testFindAll is successful.");
 	}
 	
 	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindById() {
+		logger.info("testFindById is started.");
+		
+		Staff staff = staffDAO.findById(2).orElse(null);
+
+		assertNotNull(staff);
+		assertNotNull(staff);
+		assertEquals(staff.getId(), 2);
+		assertEquals(staff.getFirstName(), "Arzu");
+		assertEquals(staff.getLastName(), "BULGUR");
+		
+		
+		logger.info("testFindById is successful.");
+	}	
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testDelete() {
+		logger.info("testDelete is started.");
+		
+		Staff staffToDelete = staffDAO.findById(1).orElse(null);
+		assertNotNull(staffToDelete);
+		staffDAO.delete(staffToDelete);
+		staffDAO.flush();
+		
+		List<Staff> allStaff = staffDAO.findAll();
+		assertNotNull(allStaff);
+		assertEquals(allStaff.size(), 2);
+		
+		logger.info("testDelete is successful.");
+	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
 	public void testFindByFirstName() {
 		logger.info("testFindByFirstName is started.");
 		
-		List<Staff> findByFirtsName = staffDAO.findByFirtsName("Mehmet");
-		checkStaffListWithAssertion(findByFirtsName);
-		
-		verifyCommonActions();
-		verify(mockCriteriaQuery, times(1)).where(mockCriteriaBuilder.equal(any(Expression.class), any(String.class)));
+		List<Staff> findByFirstName = staffDAO.findByFirstName("Arzu");
+		assertNotNull(findByFirstName);
+		assertEquals(findByFirstName.size(), 1);
+		assertEquals(findByFirstName.get(0).getFirstName(), "Arzu");
 		
 		logger.info("testFindByFirstName is successful.");
 	}
-
-	
 	
 	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
 	public void testFindByLastName() {
 		logger.info("testFindByLastName is started.");
 		
-		List<Staff> findByLastName = staffDAO.findByLastName("ÇALIŞKAN");
-		checkStaffListWithAssertion(findByLastName);
-		
-		verifyCommonActions();
-		verify(mockCriteriaQuery, times(1)).where(mockCriteriaBuilder.equal(any(Expression.class), any(String.class)));
+		List<Staff> findByLastName = staffDAO.findByLastName("BULGUR");
+		assertNotNull(findByLastName);
+		assertEquals(findByLastName.size(), 1);
+		assertEquals(findByLastName.get(0).getLastName(), "BULGUR");
 		
 		logger.info("testFindByLastName is successful.");
 	}
 	
 	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
 	public void testFindByPhone() {
 		logger.info("testFindByPhone is started.");
 		
-		List<Staff> findByPhone = staffDAO.findByPhone("1231231231");
-		checkStaffListWithAssertion(findByPhone);
-		
-		verifyCommonActions();
-		verify(mockCriteriaQuery, times(1)).where(mockCriteriaBuilder.equal(any(Expression.class), any(String.class)));
+		List<Staff> findByPhone = staffDAO.findByPhone("1283663610");
+		assertNotNull(findByPhone);
+		assertEquals(findByPhone.size(), 1);
+		assertEquals(findByPhone.get(0).getPhone(), "1283663610");
 		
 		logger.info("testFindByPhone is successful.");
 	}
 	
 	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
 	public void testFindByEmail() {
 		logger.info("testFindByEmail is started.");
-
-		List<Staff> findByEmail = staffDAO.findByEmail("mehmet@abc.com");
-		checkStaffListWithAssertion(findByEmail);
 		
-		verifyCommonActions();
-		verify(mockCriteriaQuery, times(1)).where(mockCriteriaBuilder.equal(any(Expression.class), any(String.class)));
+		List<Staff> findByEmail = staffDAO.findByEmail("arzu@abc.com");
+		assertNotNull(findByEmail);
+		assertEquals(findByEmail.size(), 1);
+		assertEquals(findByEmail.get(0).getEmail(), "arzu@abc.com");
 		
 		logger.info("testFindByEmail is successful.");
 	}
 	
 	@Test
-	public void testFindByRegisteredTime() {
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByRegisteredTime() throws ParseException {
 		logger.info("testFindByRegisteredTime is started.");
 		
-		List<Staff> findByRegisteredTime = staffDAO.findByRegisteredTime(new Date());
-		checkStaffListWithAssertion(findByRegisteredTime);
-		
-		verifyCommonActions();
-		verify(mockCriteriaQuery, times(1)).where(mockCriteriaBuilder.equal(any(Expression.class), any(Date.class)));
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date dateToCheck = df.parse("2019-06-20 18:35:52");
+		List<Staff> findByRegisteredTime = staffDAO.findByRegisteredTime(dateToCheck);
+		assertNotNull(findByRegisteredTime);
+		assertEquals(findByRegisteredTime.size(), 1);
+		assertEquals(findByRegisteredTime.get(0).getRegisteredTime().getTime(), dateToCheck.getTime());
 		
 		logger.info("testFindByRegisteredTime is successful.");
 	}
 	
 	@Test
-	public void testFindByDepartment() {
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByDepartment() throws ParseException {
 		logger.info("testFindByDepartment is started.");
-		
-		List<Staff> findByDepartment = staffDAO.findByDepartment(department);
-		checkStaffListWithAssertion(findByDepartment);
-		
-		verifyCommonActions();
-		verify(mockCriteriaQuery, times(1)).where(mockCriteriaBuilder.equal(any(Expression.class), any(Department.class)));
+
+		Department departmentId2 = departmentDAO.findById(2).orElse(null);
+		List<Staff> findByDepartment = staffDAO.findByDepartment(departmentId2);
+		assertNotNull(findByDepartment);
+		assertEquals(findByDepartment.size(), 2);
+		assertEquals(findByDepartment.get(0).getDepartment().getDepartmentName(), departmentId2.getDepartmentName());
 		
 		logger.info("testFindByDepartment is successful.");
-	}
-
-	private void verifyCommonActions() {
-		verify(mockSession, times(1)).getCriteriaBuilder();
-		verify(mockCriteriaBuilder, times(1)).createQuery(any());
-		verify(mockCriteriaQuery, times(1)).from(Staff.class);
-		verify(mockCriteriaQuery, times(1)).select(mockRoot);
-		verify(mockSession, times(1)).createQuery(mockCriteriaQuery);
-		verify(mockQuery, times(1)).getResultList();
-	}
-	
-	private void checkStaffListWithAssertion(List<Staff> findByFirtsName) {
-		assertNotNull(findByFirtsName);
-		assertEquals(findByFirtsName.get(0).getFirstName(), "Mehmet");
-		assertEquals(findByFirtsName.get(0).getLastName(), "ÇALIŞKAN");
-		assertEquals(findByFirtsName.get(0).getPhone(), "1231231231");
-		assertEquals(findByFirtsName.get(0).getEmail(), "mehmet@abc.com");
-		assertEquals(findByFirtsName.get(0).getDepartment().getDepartmentName(), "Üretim");
 	}
 }
