@@ -75,6 +75,23 @@ public class DepartmentDAOTest {
 	
 	@Test
 	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testDelete() {
+		logger.info("testDelete is started.");
+		
+		Department deparmentARGE = departmentDAO.findById(2).orElse(null);
+		assertNotNull(deparmentARGE);
+		departmentDAO.delete(deparmentARGE);
+		departmentDAO.flush();
+		
+		List<Department> allDeparment = departmentDAO.findAll();
+		assertNotNull(allDeparment);
+		assertEquals(allDeparment.size(), 2);
+		
+		logger.info("testDelete is successful.");
+	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
 	public void testFindFirstByDepartmentName() {
 		logger.info("testFindFirstByDepartmentName is started.");
 		
