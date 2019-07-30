@@ -32,6 +32,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 	}
 
 	@Override
+	public void removeById(Integer id) {
+		departmentDAO.deleteById(id);
+	}
+
+	@Override
 	public Department findById(Integer id) {
 		return departmentDAO.findById(id).orElse(null);
 	}

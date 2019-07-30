@@ -73,6 +73,17 @@ public class DepartmentServiceTest {
 	}
 	
 	@Test
+	public void testRemoveById() {
+		logger.info("testRemoveById is started.");
+		
+		departmentService.removeById(anyInt());
+		
+		verify(mockDepartmentDAO, times(1)).deleteById(anyInt());
+		
+		logger.info("testRemoveById is successful.");
+	}
+	
+	@Test
 	public void testFindById() {
 		logger.info("testFindById is started.");
 		
