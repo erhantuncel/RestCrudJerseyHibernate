@@ -67,4 +67,9 @@ public class StaffServiceImpl implements StaffService {
 	public List<Staff> findByDepartment(Department department) {
 		return staffDAO.findByDepartment(department);
 	}
+
+	@Override
+	public List<Staff> findByDepartmentId(Integer id) {
+		return staffDAO.findByDepartmentId(id);
+	}
 }

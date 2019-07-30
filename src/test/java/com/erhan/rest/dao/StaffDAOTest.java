@@ -180,4 +180,18 @@ public class StaffDAOTest {
 		
 		logger.info("testFindByDepartment is successful.");
 	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByDepartmentId() throws ParseException {
+		logger.info("testFindByDepartmentId is started.");
+
+		List<Staff> findByDepartmentId = staffDAO.findByDepartmentId(Integer.valueOf("2"));
+		assertNotNull(findByDepartmentId);
+		assertEquals(findByDepartmentId.size(), 2);
+		assertEquals(findByDepartmentId.get(0).getDepartment().getId(), 2);
+		assertEquals(findByDepartmentId.get(0).getFirstName(), "Arzu");
+		
+		logger.info("testFindByDepartmentId is successful.");
+	}
 }
