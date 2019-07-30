@@ -14,6 +14,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "departments")
 public class Department {
@@ -27,7 +29,8 @@ public class Department {
 	@NotEmpty
 	private String departmentName;
 
-	@OneToMany(mappedBy = "department", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JsonIgnore
+	@OneToMany(mappedBy = "department", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private Set<Staff> staffList = new HashSet<>();
 	
 	public Department() {
