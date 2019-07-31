@@ -243,18 +243,18 @@ public class StaffServiceTest {
 	public void testFindByDepartmentId() {
 		logger.info("testFindByDepartmentId is started.");
 		
-		when(mockStaffDAO.findByDepartmentId(any(Integer.class))).thenReturn(staffList);
+		when(mockStaffDAO.findByDepartment_Id(any(Integer.class))).thenReturn(staffList);
 		
-		List<Staff> findByDepartmentId = staffService.findByDepartmentId(staffList.get(0).getDepartment().getId());
+		List<Staff> findByDepartment_Id = staffService.findByDepartmentId(staffList.get(0).getDepartment().getId());
 		
-		assertNotNull(findByDepartmentId);
-		assertEquals(findByDepartmentId.size(), 2);
-		assertEquals(findByDepartmentId.get(1).getFirstName(), staffList.get(1).getFirstName());
-		assertEquals(findByDepartmentId.get(1).getLastName(), staffList.get(1).getLastName());
-		assertEquals(findByDepartmentId.get(1).getPhone(), staffList.get(1).getPhone());
-		assertEquals(findByDepartmentId.get(1).getEmail(), staffList.get(1).getEmail());
-		assertEquals(findByDepartmentId.get(1).getRegisteredTime(), staffList.get(1).getRegisteredTime());
-		verify(mockStaffDAO, times(1)).findByDepartmentId(any(Integer.class));
+		assertNotNull(findByDepartment_Id);
+		assertEquals(findByDepartment_Id.size(), 2);
+		assertEquals(findByDepartment_Id.get(1).getFirstName(), staffList.get(1).getFirstName());
+		assertEquals(findByDepartment_Id.get(1).getLastName(), staffList.get(1).getLastName());
+		assertEquals(findByDepartment_Id.get(1).getPhone(), staffList.get(1).getPhone());
+		assertEquals(findByDepartment_Id.get(1).getEmail(), staffList.get(1).getEmail());
+		assertEquals(findByDepartment_Id.get(1).getRegisteredTime(), staffList.get(1).getRegisteredTime());
+		verify(mockStaffDAO, times(1)).findByDepartment_Id(any(Integer.class));
 		
 		logger.info("testFindByDepartmentId is successful.");
 	}

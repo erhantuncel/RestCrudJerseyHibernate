@@ -183,15 +183,15 @@ public class StaffDAOTest {
 	
 	@Test
 	@Sql(scripts = {"classpath:restdbfortest.sql"})
-	public void testFindByDepartmentId() throws ParseException {
-		logger.info("testFindByDepartmentId is started.");
+	public void testFindByDepartment_Id() throws ParseException {
+		logger.info("testFindByDepartment_Id is started.");
 
-		List<Staff> findByDepartmentId = staffDAO.findByDepartmentId(Integer.valueOf("2"));
-		assertNotNull(findByDepartmentId);
-		assertEquals(findByDepartmentId.size(), 2);
-		assertEquals(findByDepartmentId.get(0).getDepartment().getId(), 2);
-		assertEquals(findByDepartmentId.get(0).getFirstName(), "Arzu");
+		List<Staff> findByDepartment_Id = staffDAO.findByDepartment_Id(Integer.valueOf("2"));
+		assertNotNull(findByDepartment_Id);
+		assertEquals(findByDepartment_Id.size(), 2);
+		assertEquals(findByDepartment_Id.get(0).getDepartment().getId(), 2);
+		assertEquals(findByDepartment_Id.get(0).getFirstName(), "Arzu");
 		
-		logger.info("testFindByDepartmentId is successful.");
+		logger.info("testFindByDepartment_Id is successful.");
 	}
 }

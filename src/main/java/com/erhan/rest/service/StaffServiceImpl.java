@@ -70,6 +70,6 @@ public class StaffServiceImpl implements StaffService {
 
 	@Override
 	public List<Staff> findByDepartmentId(Integer id) {
-		return staffDAO.findByDepartmentId(id);
+		return staffDAO.findByDepartment_Id(id);
 	}
 }
