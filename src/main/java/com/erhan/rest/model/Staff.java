@@ -48,7 +48,7 @@ public class Staff {
 	@NotNull
 	private Date registeredTime;
 	
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "department_id")
 	private Department department;
 
