@@ -30,7 +30,8 @@ public class Department {
 	private String departmentName;
 
 	@JsonIgnore
-	@OneToMany(mappedBy = "department", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "department", fetch = FetchType.EAGER, 
+			   cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Staff> staffList = new HashSet<>();
 	
 	public Department() {
