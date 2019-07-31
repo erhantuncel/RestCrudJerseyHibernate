@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@ComponentScan("com.erhan.rest.service")
+@ComponentScan("com.erhan.rest")
 @EnableJpaRepositories("com.erhan.rest.dao")
 public class SpringConfig {
 
