@@ -13,4 +13,5 @@ public interface DepartmentService {
 	public Department findById(Integer id);
 	public List<Department> findAll();
 	public Department findByDepartmentName(String name);
+	public List<Department> findAllPaginated(int start, int pageSize);
 }

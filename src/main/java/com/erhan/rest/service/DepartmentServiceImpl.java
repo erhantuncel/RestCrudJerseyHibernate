@@ -3,6 +3,7 @@ package com.erhan.rest.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,5 +49,10 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 	public Department findByDepartmentName(String name) {
 		return departmentDAO.findFirstByDepartmentName(name);
+	}
+
+	@Override
+	public List<Department> findAllPaginated(int start, int pageSize) {
+		return departmentDAO.findAll(PageRequest.of(start, pageSize)).getContent();
 	}
 }

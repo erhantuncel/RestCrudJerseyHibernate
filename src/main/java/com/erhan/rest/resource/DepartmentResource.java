@@ -2,6 +2,7 @@ package com.erhan.rest.resource;
 
 import java.util.List;
 
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.erhan.rest.model.Department;
+import com.erhan.rest.resource.bean.DepartmentFilterBean;
 import com.erhan.rest.service.DepartmentService;
 
 @Path("departments")
@@ -42,11 +44,12 @@ public class DepartmentResource {
 	}
 	
 	@GET
-	public List<Department> getAllDepartments() {
+	public List<Department> getAllDepartments(@BeanParam DepartmentFilterBean filterBean) {
 		logger.info("getAllDepartments method is invoked.");
-		
-		List<Department> allDepartments = departmentService.findAll();
-		return allDepartments;
+		if(filterBean.getPage() != null && filterBean.getSize() != null) {
+			return departmentService.findAllPaginated(filterBean.getPage(), filterBean.getSize());
+		}
+		return departmentService.findAll();
 	}
 	
 	@POST

@@ -6,6 +6,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -28,6 +30,9 @@ public class DepartmentServiceTest {
 	
 	@Mock
 	DepartmentDAO mockDepartmentDAO;
+	
+	@Mock
+	Page<Department> mockPageDepartment;
 	
 	@InjectMocks
 	DepartmentServiceImpl departmentService;
@@ -119,8 +124,8 @@ public class DepartmentServiceTest {
 	}
 	
 	@Test
-	public void testFindBtDepartmentName() {
-		logger.info("testFindBtDepartmentName is started.");
+	public void testFindByDepartmentName() {
+		logger.info("testFindByDepartmentName is started.");
 				
 		when(mockDepartmentDAO.findFirstByDepartmentName(anyString())).thenReturn(department);
 		
@@ -130,6 +135,28 @@ public class DepartmentServiceTest {
 		
 		verify(mockDepartmentDAO, times(1)).findFirstByDepartmentName(anyString());
 		
-		logger.info("testFindBtDepartmentName is successful.");
+		logger.info("testFindByDepartmentName is successful.");
+	}
+	
+	@Test
+	public void testAllPaginated() {
+		logger.info("testAllPaginated is started.");
+		
+		List<Department> departmentList = new ArrayList<Department>();
+		departmentList.add(new Department("Üretim"));
+		departmentList.add(new Department("Finans"));;
+		
+		when(mockDepartmentDAO.findAll(any(Pageable.class))).thenReturn(mockPageDepartment);
+		when(mockPageDepartment.getContent()).thenReturn(departmentList);
+		
+		List<Department> allDepartmentsPaginated = departmentService.findAllPaginated(0, 2);
+		assertNotNull(allDepartmentsPaginated);
+		assertEquals(allDepartmentsPaginated.get(0).getDepartmentName(), "Üretim");
+		
+		verify(mockDepartmentDAO, times(1)).findAll(any(Pageable.class));
+		verify(mockPageDepartment, times(1)).getContent();
+		
+		
+		logger.info("testAllPaginated is successful.");
 	}
 }
