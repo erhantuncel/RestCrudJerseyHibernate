@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.erhan.rest.model.Department;
 import com.erhan.rest.service.DepartmentService;
@@ -22,12 +23,16 @@ import com.erhan.rest.service.DepartmentService;
 @Path("departments")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class Departments {
+@Component
+public class DepartmentResource {
 
-	private static final Logger logger = LogManager.getLogger(Departments.class);
+	private static final Logger logger = LogManager.getLogger(DepartmentResource.class);
 	
 	@Autowired
 	private DepartmentService departmentService;
+	
+	@Autowired
+	private StaffResource staffResource;
 	
 	@GET
 	@Path("/{departmentId}")
@@ -63,5 +68,10 @@ public class Departments {
 	public void deleteDepartment(@PathParam("departmentId") Integer departmentId) {
 		logger.info("deleteDepartment method is invoked.");
 		departmentService.removeById(departmentId);
+	}
+	
+	@Path("/{departmentId}/staffs")
+	public StaffResource getStaffResource() {
+		return staffResource;
 	}
 }
