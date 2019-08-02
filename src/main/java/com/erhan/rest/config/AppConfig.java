@@ -10,7 +10,7 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 public class AppConfig	extends ResourceConfig {
 	
 	public AppConfig() {
-		packages("com.erhan.rest.resource");
+		packages("com.erhan.rest.resource", "com.erhan.rest.exception");
 		register(RequestContextFilter.class);
 		property(ServerProperties.RESPONSE_SET_STATUS_OVER_SEND_ERROR, true);
 	}

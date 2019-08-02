@@ -2,6 +2,8 @@ package com.erhan.rest.service;
 
 import java.util.List;
 
+import javax.ws.rs.NotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import com.erhan.rest.model.Department;
 @Service
 @Transactional
 public class DepartmentServiceImpl implements DepartmentService {
+	
 	
 	@Autowired
 	private DepartmentDAO departmentDAO;
@@ -39,7 +42,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 	@Override
 	public Department findById(Integer id) {
-		return departmentDAO.findById(id).orElse(null);
+		Department department = departmentDAO.findById(id).orElse(null);
+		if(department == null) {
+			throw new NotFoundException("Department not found!");
+		}
+		return department;
 	}
 
 	@Override
@@ -48,11 +55,15 @@ public class DepartmentServiceImpl implements DepartmentService {
 	}
 
 	public Department findByDepartmentName(String name) {
-		return departmentDAO.findFirstByDepartmentName(name);
+		Department department = departmentDAO.findFirstByDepartmentName(name);
+		if(department == null) {
+			throw new NotFoundException("Department not found!");
+		}
+		return department;
 	}
 
 	@Override
-	public List<Department> findAllPaginated(int start, int pageSize) {
-		return departmentDAO.findAll(PageRequest.of(start, pageSize)).getContent();
+	public List<Department> findAllPaginated(int page, int pageSize) {
+		return departmentDAO.findAll(PageRequest.of(page, pageSize)).getContent();
 	}
 }

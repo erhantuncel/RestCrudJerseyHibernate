@@ -22,6 +22,7 @@ import com.erhan.rest.model.Department;
 import com.erhan.rest.resource.bean.DepartmentFilterBean;
 import com.erhan.rest.service.DepartmentService;
 
+
 @Path("departments")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
