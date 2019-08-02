@@ -17,4 +17,11 @@ public interface StaffDAO extends JpaRepository<Staff, Integer> {
 	public List<Staff> findByRegisteredTime(Date registeredTime);
 	public List<Staff> findByDepartment(Department department);
 	public List<Staff> findByDepartment_Id(Integer id);
+	public List<Staff> findByIdAndDepartment_Id(Integer staffId, Integer departmentId);
+	public List<Staff> findByFirstNameAndDepartment_Id(String firstName, Integer departmentId);
+	public List<Staff> findByLastNameAndDepartment_Id(String lastName, Integer departmentId);
+	public List<Staff> findByPhoneAndDepartment_Id(String phone, Integer departmentId);
+	public List<Staff> findByEmailAndDepartment_Id(String email, Integer departmentId);
+	public List<Staff> findByRegisteredTimeAndDepartment_Id(Date registeredTime, Integer departmentId);
+	
 }

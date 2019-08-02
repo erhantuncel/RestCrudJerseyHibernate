@@ -43,6 +43,7 @@ public class StaffDAOTest {
 		logger.info("testSave is started.");
 		
 		Department departmentSatis = new Department("Satış");
+		departmentDAO.save(departmentSatis);
 		Staff staff = new Staff("Mehmet", "ÇALIŞKAN", "1231231231", "mehmet@abc.com", new Date(), departmentSatis);
 		staffDAO.save(staff);
 		staffDAO.flush();
@@ -90,6 +91,10 @@ public class StaffDAOTest {
 		
 		Staff staffToDelete = staffDAO.findById(1).orElse(null);
 		assertNotNull(staffToDelete);
+		Department department = departmentDAO.findById(staffToDelete.getDepartment().getId()).get();
+		assertNotNull(department);
+		department.getStaffList().remove(staffToDelete);
+		departmentDAO.save(department);
 		staffDAO.delete(staffToDelete);
 		staffDAO.flush();
 		
@@ -169,7 +174,7 @@ public class StaffDAOTest {
 	
 	@Test
 	@Sql(scripts = {"classpath:restdbfortest.sql"})
-	public void testFindByDepartment() throws ParseException {
+	public void testFindByDepartment() {
 		logger.info("testFindByDepartment is started.");
 
 		Department departmentId2 = departmentDAO.findById(2).orElse(null);
@@ -183,7 +188,7 @@ public class StaffDAOTest {
 	
 	@Test
 	@Sql(scripts = {"classpath:restdbfortest.sql"})
-	public void testFindByDepartment_Id() throws ParseException {
+	public void testFindByDepartment_Id() {
 		logger.info("testFindByDepartment_Id is started.");
 
 		List<Staff> findByDepartment_Id = staffDAO.findByDepartment_Id(Integer.valueOf("2"));
@@ -193,5 +198,102 @@ public class StaffDAOTest {
 		assertEquals(findByDepartment_Id.get(0).getFirstName(), "Arzu");
 		
 		logger.info("testFindByDepartment_Id is successful.");
+	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByIdAndDepartmentId() {
+		logger.info("testFindByIdAndDepartmentId is started.");
+
+		List<Staff> findByIdAndDepartmentId = staffDAO.findByIdAndDepartment_Id(3, 2);
+		assertNotNull(findByIdAndDepartmentId);
+		assertEquals(findByIdAndDepartmentId.size(), 1);
+		assertEquals(findByIdAndDepartmentId.get(0).getDepartment().getId(), 2);
+		assertEquals(findByIdAndDepartmentId.get(0).getFirstName(), "Emre");
+		
+		logger.info("testFindByIdAndDepartmentId is successful.");
+	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByIdAndDepartmentIdReturnNoStaff() {
+		logger.info("testFindByIdAndDepartmentIdReturnNoStaff is started.");
+
+		List<Staff> findByIdAndDepartmentId = staffDAO.findByIdAndDepartment_Id(3, 3);
+		assertNotNull(findByIdAndDepartmentId);
+		assertEquals(findByIdAndDepartmentId.size(), 0);	
+		
+		logger.info("testFindByIdAndDepartmentIdReturnNoStaff is successful.");
+	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByFirstNameAndDepartmentId() {
+		logger.info("testFindByFirstNameAndDepartmentId is started.");
+
+		List<Staff> findByFirstNameAndDepartmentId = staffDAO.findByFirstNameAndDepartment_Id("Emre", 2);
+		assertNotNull(findByFirstNameAndDepartmentId);
+		assertEquals(findByFirstNameAndDepartmentId.size(), 1);
+		assertEquals(findByFirstNameAndDepartmentId.get(0).getDepartment().getId(), 2);
+		assertEquals(findByFirstNameAndDepartmentId.get(0).getFirstName(), "Emre");
+		
+		logger.info("testFindByFirstNameAndDepartmentId is successful.");
+	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByLastNameAndDepartmentId() {
+		logger.info("testFindByLastNameAndDepartmentId is started.");
+
+		List<Staff> findByLastNameAndDepartmentId = staffDAO.findByLastNameAndDepartment_Id("BİNBAY", 2);
+		assertNotNull(findByLastNameAndDepartmentId);
+		assertEquals(findByLastNameAndDepartmentId.size(), 1);
+		assertEquals(findByLastNameAndDepartmentId.get(0).getDepartment().getId(), 2);
+		assertEquals(findByLastNameAndDepartmentId.get(0).getLastName(), "BİNBAY");
+		
+		logger.info("testFindByLastNameAndDepartmentId is successful.");
+	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByPhoneAndDepartmentId() {
+		logger.info("testFindByPhoneAndDepartmentId is started.");
+
+		List<Staff> findByPhoneAndDepartmentId = staffDAO.findByPhoneAndDepartment_Id("7543118133", 2);
+		assertNotNull(findByPhoneAndDepartmentId);
+		assertEquals(findByPhoneAndDepartmentId.size(), 1);
+		assertEquals(findByPhoneAndDepartmentId.get(0).getDepartment().getId(), 2);
+		assertEquals(findByPhoneAndDepartmentId.get(0).getPhone(), "7543118133");
+		
+		logger.info("testFindByPhoneAndDepartmentId is successful.");
+	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByEmailAndDepartmentId() {
+		logger.info("testFindByEmailAndDepartmentId is started.");
+
+		List<Staff> findByPhoneAndDepartmentId = staffDAO.findByEmailAndDepartment_Id("arzu@abc.com", 2);
+		assertNotNull(findByPhoneAndDepartmentId);
+		assertEquals(findByPhoneAndDepartmentId.size(), 1);
+		assertEquals(findByPhoneAndDepartmentId.get(0).getDepartment().getId(), 2);
+		assertEquals(findByPhoneAndDepartmentId.get(0).getEmail(), "arzu@abc.com");
+		
+		logger.info("testFindByEmailAndDepartmentId is successful.");
+	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByRegisteredTimeAndDepartmentId() throws ParseException {
+		logger.info("testFindByRegisteredTimeAndDepartmentId is started.");
+		
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date dateToCheck = df.parse("2019-06-20 18:35:52");
+		List<Staff> findByRegisteredTimeAndDepartmentId = staffDAO.findByRegisteredTimeAndDepartment_Id(dateToCheck, 2);
+		assertNotNull(findByRegisteredTimeAndDepartmentId);
+		assertEquals(findByRegisteredTimeAndDepartmentId.size(), 1);
+		assertEquals(findByRegisteredTimeAndDepartmentId.get(0).getRegisteredTime().getTime(), dateToCheck.getTime());
+		
+		logger.info("testFindByRegisteredTimeAndDepartmentId is successful.");
 	}
 }
