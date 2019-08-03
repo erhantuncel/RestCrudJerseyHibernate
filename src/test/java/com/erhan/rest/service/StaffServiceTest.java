@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.ws.rs.NotFoundException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
@@ -97,6 +99,17 @@ public class StaffServiceTest {
 		verify(mockStaffDAO, times(1)).findById(anyInt());
 		
 		logger.info("testFindById is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindByIdWithException() {
+		logger.info("testFindByIdWithException is started.");
+		
+		when(mockStaffDAO.findById(2)).thenReturn(Optional.ofNullable(null));
+		
+		staffService.findById(2);
+		
+		logger.info("testFindByIdWithException is successful.");
 	}
 	
 	@Test
@@ -257,5 +270,189 @@ public class StaffServiceTest {
 		verify(mockStaffDAO, times(1)).findByDepartment_Id(any(Integer.class));
 		
 		logger.info("testFindByDepartmentId is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindByDepartmentIdWithException() {
+		logger.info("testFindByDepartmentIdWithException is started.");
+		
+		when(mockStaffDAO.findByDepartment_Id(any(Integer.class))).thenReturn(new ArrayList<Staff>());
+		
+		staffService.findByDepartmentId(staffList.get(0).getDepartment().getId());
+		
+		logger.info("testFindByDepartmentIdWithException is successful.");
+	}
+	
+	@Test
+	public void testFindByIdAndDepartmentId() {
+		logger.info("testFindByIdAndDepartmentId is started.");
+		
+		when(mockStaffDAO.findByIdAndDepartment_Id(anyInt(), anyInt())).thenReturn(staffList);
+		
+		Staff findByIdAndDepartmentId = staffService.findByIdAndDepartmentId(2, 3);
+		assertNotNull(findByIdAndDepartmentId);
+		assertEquals(findByIdAndDepartmentId.getFirstName(), staffList.get(0).getFirstName());
+		assertEquals(findByIdAndDepartmentId.getLastName(), staffList.get(0).getLastName());
+		assertEquals(findByIdAndDepartmentId.getPhone(), staffList.get(0).getPhone());
+		assertEquals(findByIdAndDepartmentId.getEmail(), staffList.get(0).getEmail());
+		assertEquals(findByIdAndDepartmentId.getRegisteredTime(), staffList.get(0).getRegisteredTime());
+		verify(mockStaffDAO, times(1)).findByIdAndDepartment_Id(anyInt(), anyInt());
+		
+		logger.info("testFindByIdAndDepartmentId is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindByIdAndDepartmentIdWithException() {
+		logger.info("testFindByIdAndDepartmentIdWithException is started.");
+		
+		when(mockStaffDAO.findByIdAndDepartment_Id(anyInt(), anyInt())).thenReturn(new ArrayList<Staff>());
+		
+		staffService.findByIdAndDepartmentId(2, 3);
+		
+		logger.info("testFindByIdAndDepartmentIdWithException is successful.");
+	}
+	
+	@Test
+	public void testFindByFirstNameAndDepartmentId() {
+		logger.info("testFindByFirstNameAndDepartmentId is started.");
+		
+		when(mockStaffDAO.findByFirstNameAndDepartment_Id(any(String.class), anyInt())).thenReturn(staffList);
+		
+		Staff findByFirstNameAndDepartmentId = staffService.findByFirstNameAndDepartmentId("Ahmet", 2);
+		assertNotNull(findByFirstNameAndDepartmentId);
+		assertEquals(findByFirstNameAndDepartmentId.getFirstName(), staffList.get(0).getFirstName());
+		assertEquals(findByFirstNameAndDepartmentId.getLastName(), staffList.get(0).getLastName());
+		assertEquals(findByFirstNameAndDepartmentId.getPhone(), staffList.get(0).getPhone());
+		assertEquals(findByFirstNameAndDepartmentId.getEmail(), staffList.get(0).getEmail());
+		assertEquals(findByFirstNameAndDepartmentId.getRegisteredTime(), staffList.get(0).getRegisteredTime());
+		verify(mockStaffDAO, times(1)).findByFirstNameAndDepartment_Id(any(String.class), anyInt());
+		
+		logger.info("testFindByFirstNameAndDepartmentId is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindByFirstNameAndDepartmentIdWithException() {
+		logger.info("testFindByFirstNameAndDepartmentIdWithException is started.");
+		
+		when(mockStaffDAO.findByFirstNameAndDepartment_Id(any(String.class), anyInt())).thenReturn(new ArrayList<Staff>());
+		staffService.findByFirstNameAndDepartmentId("Ahmet", 2);
+		
+		logger.info("testFindByFirstNameAndDepartmentIdWithException is successful.");
+	}
+	
+	@Test
+	public void testFindByLastNameAndDepartmentId() {
+		logger.info("testFindByLastNameAndDepartmentId is started.");
+		
+		when(mockStaffDAO.findByLastNameAndDepartment_Id(any(String.class), anyInt())).thenReturn(staffList);
+		
+		Staff findByLastNameAndDepartmentId = staffService.findByLastNameAndDepartmentId("ÇALIŞKAN", 2);
+		assertNotNull(findByLastNameAndDepartmentId);
+		assertEquals(findByLastNameAndDepartmentId.getFirstName(), staffList.get(0).getFirstName());
+		assertEquals(findByLastNameAndDepartmentId.getLastName(), staffList.get(0).getLastName());
+		assertEquals(findByLastNameAndDepartmentId.getPhone(), staffList.get(0).getPhone());
+		assertEquals(findByLastNameAndDepartmentId.getEmail(), staffList.get(0).getEmail());
+		assertEquals(findByLastNameAndDepartmentId.getRegisteredTime(), staffList.get(0).getRegisteredTime());
+		verify(mockStaffDAO, times(1)).findByLastNameAndDepartment_Id(any(String.class), anyInt());
+		
+		logger.info("testFindByLastNameAndDepartmentId is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindByLastNameAndDepartmentIdWithException() {
+		logger.info("testFindByLastNameAndDepartmentIdWithException is started.");
+		
+		when(mockStaffDAO.findByLastNameAndDepartment_Id(any(String.class), anyInt())).thenReturn(new ArrayList<Staff>());
+		
+		staffService.findByLastNameAndDepartmentId("ÇALIŞKAN", 2);
+		
+		logger.info("testFindByLastNameAndDepartmentIdWithException is successful.");
+	}
+	
+	@Test
+	public void testFindByPhoneAndDepartmentId() {
+		logger.info("testFindByPhoneAndDepartmentId is started.");
+		
+		when(mockStaffDAO.findByPhoneAndDepartment_Id(any(String.class), anyInt())).thenReturn(staffList);
+		
+		Staff findByPhoneAndDepartmentId = staffService.findByPhoneAndDepartmentId("1231231231", 2);
+		assertNotNull(findByPhoneAndDepartmentId);
+		assertEquals(findByPhoneAndDepartmentId.getFirstName(), staffList.get(0).getFirstName());
+		assertEquals(findByPhoneAndDepartmentId.getLastName(), staffList.get(0).getLastName());
+		assertEquals(findByPhoneAndDepartmentId.getPhone(), staffList.get(0).getPhone());
+		assertEquals(findByPhoneAndDepartmentId.getEmail(), staffList.get(0).getEmail());
+		assertEquals(findByPhoneAndDepartmentId.getRegisteredTime(), staffList.get(0).getRegisteredTime());
+		verify(mockStaffDAO, times(1)).findByPhoneAndDepartment_Id(any(String.class), anyInt());
+		
+		logger.info("testFindByPhoneAndDepartmentId is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindByPhoneAndDepartmentIdWithException() {
+		logger.info("testFindByPhoneAndDepartmentIdWithException is started.");
+		
+		when(mockStaffDAO.findByPhoneAndDepartment_Id(any(String.class), anyInt())).thenReturn(new ArrayList<Staff>());
+		
+		staffService.findByPhoneAndDepartmentId("1231231231", 2);
+		
+		logger.info("testFindByPhoneAndDepartmentIdWithException is successful.");
+	}
+	
+	@Test
+	public void testFindByEmailAndDepartmentId() {
+		logger.info("testFindByEmailAndDepartmentId is started.");
+		
+		when(mockStaffDAO.findByEmailAndDepartment_Id(any(String.class), anyInt())).thenReturn(staffList);
+		
+		Staff findByEmailAndDepartmentId = staffService.findByEmailAndDepartmentId("mehmet@abc.com", 2);
+		assertNotNull(findByEmailAndDepartmentId);
+		assertEquals(findByEmailAndDepartmentId.getFirstName(), staffList.get(0).getFirstName());
+		assertEquals(findByEmailAndDepartmentId.getLastName(), staffList.get(0).getLastName());
+		assertEquals(findByEmailAndDepartmentId.getPhone(), staffList.get(0).getPhone());
+		assertEquals(findByEmailAndDepartmentId.getEmail(), staffList.get(0).getEmail());
+		assertEquals(findByEmailAndDepartmentId.getRegisteredTime(), staffList.get(0).getRegisteredTime());
+		verify(mockStaffDAO, times(1)).findByEmailAndDepartment_Id(any(String.class), anyInt());
+		
+		logger.info("testFindByEmailAndDepartmentId is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindByEmailAndDepartmentIdWithException() {
+		logger.info("testFindByEmailAndDepartmentIdWithException is started.");
+		
+		when(mockStaffDAO.findByEmailAndDepartment_Id(any(String.class), anyInt())).thenReturn(new ArrayList<Staff>());
+		
+		staffService.findByEmailAndDepartmentId("mehmet@abc.com", 2);
+		
+		logger.info("testFindByEmailAndDepartmentIdWithException is successful.");
+	}
+	
+	@Test
+	public void testFindByRegisteredTimeAndDepartmentId() {
+		logger.info("testFindByRegisteredTimeAndDepartmentId is started.");
+		
+		when(mockStaffDAO.findByRegisteredTimeAndDepartment_Id(any(Date.class), anyInt())).thenReturn(staffList);
+		
+		Staff findByRegisteredTimeAndDepartmentId = staffService.findByRegisteredTimeAndDepartmentId(staffList.get(0).getRegisteredTime(), 2);
+		assertNotNull(findByRegisteredTimeAndDepartmentId);
+		assertEquals(findByRegisteredTimeAndDepartmentId.getFirstName(), staffList.get(0).getFirstName());
+		assertEquals(findByRegisteredTimeAndDepartmentId.getLastName(), staffList.get(0).getLastName());
+		assertEquals(findByRegisteredTimeAndDepartmentId.getPhone(), staffList.get(0).getPhone());
+		assertEquals(findByRegisteredTimeAndDepartmentId.getEmail(), staffList.get(0).getEmail());
+		assertEquals(findByRegisteredTimeAndDepartmentId.getRegisteredTime(), staffList.get(0).getRegisteredTime());
+		verify(mockStaffDAO, times(1)).findByRegisteredTimeAndDepartment_Id(any(Date.class), anyInt());
+		
+		logger.info("testFindByRegisteredTimeAndDepartmentId is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindByRegisteredTimeAndDepartmentIdWithException() {
+		logger.info("testFindByRegisteredTimeAndDepartmentIdWithException is started.");
+		
+		when(mockStaffDAO.findByRegisteredTimeAndDepartment_Id(any(Date.class), anyInt())).thenReturn(new ArrayList<Staff>());
+		
+		staffService.findByRegisteredTimeAndDepartmentId(staffList.get(0).getRegisteredTime(), 2);
+		
+		logger.info("testFindByRegisteredTimeAndDepartmentIdWithException is successful.");
 	}
 }

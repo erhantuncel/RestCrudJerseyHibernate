@@ -1,7 +1,10 @@
 package com.erhan.rest.service;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import javax.ws.rs.NotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +38,11 @@ public class StaffServiceImpl implements StaffService {
 
 	@Override
 	public Staff findById(Integer id) {
-		return staffDAO.findById(id).orElse(null);
+		Staff staff = staffDAO.findById(id).orElse(null);
+		if(staff == null) {
+			throw new NotFoundException("Staff not found!");
+		}
+		return staff;
 	}
 
 	@Override
@@ -70,6 +77,65 @@ public class StaffServiceImpl implements StaffService {
 
 	@Override
 	public List<Staff> findByDepartmentId(Integer id) {
-		return staffDAO.findByDepartment_Id(id);
+		List<Staff> staffList = staffDAO.findByDepartment_Id(id);
+		if(staffList.size() <= 0) {
+			throw new NotFoundException("Staff list with department Id " + id + " not found!");
+		}
+		return staffList;
+	}
+
+	@Override
+	public Staff findByIdAndDepartmentId(Integer staffId, Integer departmentId) {
+		List<Staff> staffList = staffDAO.findByIdAndDepartment_Id(staffId, departmentId);
+		if(staffList.size() <= 0) {
+			throw new NotFoundException("Staff with Id = " + staffId + " not found!");
+		}
+		return staffList.get(0);
+	}
+
+	@Override
+	public Staff findByFirstNameAndDepartmentId(String firstName, Integer departmentId) {
+		List<Staff> staffList = staffDAO.findByFirstNameAndDepartment_Id(firstName, departmentId);
+		if(staffList.size() <= 0) {
+			throw new NotFoundException("Staff with first name = " + firstName + " not found!");
+		}
+		return staffList.get(0);
+	}
+
+	@Override
+	public Staff findByLastNameAndDepartmentId(String lastName, Integer departmentId) {
+		List<Staff> staffList = staffDAO.findByLastNameAndDepartment_Id(lastName, departmentId);
+		if(staffList.size() <= 0) {
+			throw new NotFoundException("Staff with last name = " + lastName + " not found!");
+		}
+		return staffList.get(0);
+	}
+
+	@Override
+	public Staff findByPhoneAndDepartmentId(String phone, Integer departmentId) {
+		List<Staff> staffList = staffDAO.findByPhoneAndDepartment_Id(phone, departmentId);
+		if(staffList.size() <= 0) {
+			throw new NotFoundException("Staff with phone number = " + phone + " not found!");
+		}
+		return staffList.get(0);
+	}
+
+	@Override
+	public Staff findByEmailAndDepartmentId(String email, Integer departmentId) {
+		List<Staff> staffList = staffDAO.findByEmailAndDepartment_Id(email, departmentId);
+		if(staffList.size() <= 0) {
+			throw new NotFoundException("Staff with email = " + email + " not found!");
+		}
+		return staffList.get(0);
+	}
+
+	@Override
+	public Staff findByRegisteredTimeAndDepartmentId(Date registeredTime, Integer departmentId) {
+		List<Staff> staffList = staffDAO.findByRegisteredTimeAndDepartment_Id(registeredTime, departmentId);
+		if(staffList.size() <= 0) {
+			SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+			throw new NotFoundException("Staff with registered time = " + df.format(registeredTime) + " not found!");
+		}
+		return staffList.get(0);
 	}
 }

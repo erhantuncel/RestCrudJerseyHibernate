@@ -20,4 +20,10 @@ public interface StaffService {
 	public List<Staff> findByRegisteredTime(Date registeredTime);
 	public List<Staff> findByDepartment(Department department);
 	public List<Staff> findByDepartmentId(Integer id);
+	public Staff findByIdAndDepartmentId(Integer staffId, Integer departmentId);
+	public Staff findByFirstNameAndDepartmentId(String firstName, Integer departmentId);
+	public Staff findByLastNameAndDepartmentId(String lastName, Integer departmentId);
+	public Staff findByPhoneAndDepartmentId(String phone, Integer departmentId);
+	public Staff findByEmailAndDepartmentId(String email, Integer departmentId);
+	public Staff findByRegisteredTimeAndDepartmentId(Date registeredTime, Integer departmentId);
 }
