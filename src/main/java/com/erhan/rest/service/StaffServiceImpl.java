@@ -7,6 +7,7 @@ import java.util.List;
 import javax.ws.rs.NotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +51,15 @@ public class StaffServiceImpl implements StaffService {
 		return staffDAO.findAll();
 	}
 
+	@Override
+	public List<Staff> findAllPaginated(int page, int pageSize) {
+		List<Staff> allStaff = staffDAO.findAll(PageRequest.of(page, pageSize)).getContent();
+		if(allStaff.size() <= 0) {
+			throw new NotFoundException("Staff list not found!");
+		}
+		return allStaff;
+	}
+	
 	public List<Staff> findByFirstName(String firstName) {
 		return staffDAO.findByFirstName(firstName);
 	}
@@ -85,6 +95,15 @@ public class StaffServiceImpl implements StaffService {
 	}
 
 	@Override
+	public List<Staff> findByDepartmentIdPaginated(Integer id, int page, int pageSize) {
+		List<Staff> staffList = staffDAO.findByDepartment_Id(id, PageRequest.of(page, pageSize));
+		if(staffList.size() <= 0) {
+			throw new NotFoundException("Staff list not found!");
+		}
+		return staffList;
+	}
+	
+	@Override
 	public Staff findByIdAndDepartmentId(Integer staffId, Integer departmentId) {
 		List<Staff> staffList = staffDAO.findByIdAndDepartment_Id(staffId, departmentId);
 		if(staffList.size() <= 0) {
@@ -101,6 +120,15 @@ public class StaffServiceImpl implements StaffService {
 		}
 		return staffList.get(0);
 	}
+	
+	@Override
+	public List<Staff> findByFirstNameAndDepartmentIdPaginated(String firstName, Integer departmentId, int page, int pageSize) {
+		List<Staff> staffList = staffDAO.findByFirstNameAndDepartment_Id(firstName, departmentId, PageRequest.of(page, pageSize));
+		if(staffList.size() <= 0) {
+			throw new NotFoundException("Staff list not found!");
+		}
+		return staffList;
+	}
 
 	@Override
 	public Staff findByLastNameAndDepartmentId(String lastName, Integer departmentId) {
@@ -111,6 +139,15 @@ public class StaffServiceImpl implements StaffService {
 		return staffList.get(0);
 	}
 
+	@Override
+	public List<Staff> findByLastNameAndDepartmentIdPaginated(String lastName, Integer departmentId, int page, int pageSize) {
+		List<Staff> staffList = staffDAO.findByLastNameAndDepartment_Id(lastName, departmentId, PageRequest.of(page, pageSize));
+		if(staffList.size() <= 0) {
+			throw new NotFoundException("Staff list not found!");
+		}
+		return staffList;
+	}
+	
 	@Override
 	public Staff findByPhoneAndDepartmentId(String phone, Integer departmentId) {
 		List<Staff> staffList = staffDAO.findByPhoneAndDepartment_Id(phone, departmentId);

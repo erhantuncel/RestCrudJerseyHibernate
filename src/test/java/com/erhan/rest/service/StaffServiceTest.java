@@ -15,6 +15,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -32,6 +34,9 @@ public class StaffServiceTest {
 	
 	@Mock
 	StaffDAO mockStaffDAO;
+	
+	@Mock
+	Page<Staff> mockPageStaff;
 	
 	@InjectMocks
 	StaffServiceImpl staffService;
@@ -130,6 +135,40 @@ public class StaffServiceTest {
 		verify(mockStaffDAO, times(1)).findAll();
 		
 		logger.info("testFindAll is successful.");
+	}
+	
+	@Test
+	public void testFindAllPaginated() {
+		logger.info("testFindAllPaginated is started.");
+		
+		when(mockStaffDAO.findAll(any(Pageable.class))).thenReturn(mockPageStaff);
+		when(mockPageStaff.getContent()).thenReturn(staffList);
+		
+		List<Staff> allStaffs = staffService.findAllPaginated(1, 2);
+		assertNotNull(allStaffs);
+		assertEquals(allStaffs.size(), 2);
+		assertEquals(allStaffs.get(0).getFirstName(), staff.getFirstName());
+		assertEquals(allStaffs.get(0).getLastName(), staff.getLastName());
+		assertEquals(allStaffs.get(0).getPhone(), staff.getPhone());
+		assertEquals(allStaffs.get(0).getEmail(), staff.getEmail());
+		assertEquals(allStaffs.get(0).getRegisteredTime(), staff.getRegisteredTime());
+		
+		verify(mockStaffDAO, times(1)).findAll(any(Pageable.class));
+		verify(mockPageStaff, times(1)).getContent();
+		
+		logger.info("testFindAllPaginated is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindAllPaginatedWithException() {
+		logger.info("testFindAllPaginatedWithException is started.");
+		
+		when(mockStaffDAO.findAll(any(Pageable.class))).thenReturn(mockPageStaff);
+		when(mockPageStaff.getContent()).thenReturn(new ArrayList<Staff>());
+		
+		staffService.findAllPaginated(1, 2);
+		
+		logger.info("testFindAllPaginatedWithException is successful.");
 	}
 	
 	@Test
@@ -284,6 +323,38 @@ public class StaffServiceTest {
 	}
 	
 	@Test
+	public void testFindByDepartmentIdPaginated() {
+		logger.info("testFindByDepartmentIdPaginated is started.");
+		
+		when(mockStaffDAO.findByDepartment_Id(any(Integer.class), any(Pageable.class))).thenReturn(staffList);
+		
+		List<Staff> findByDepartment_IdPaginated = staffService
+				.findByDepartmentIdPaginated(staffList.get(0).getDepartment().getId(), 0, 2);
+		
+		assertNotNull(findByDepartment_IdPaginated);
+		assertEquals(findByDepartment_IdPaginated.size(), 2);
+		assertEquals(findByDepartment_IdPaginated.get(1).getFirstName(), staffList.get(1).getFirstName());
+		assertEquals(findByDepartment_IdPaginated.get(1).getLastName(), staffList.get(1).getLastName());
+		assertEquals(findByDepartment_IdPaginated.get(1).getPhone(), staffList.get(1).getPhone());
+		assertEquals(findByDepartment_IdPaginated.get(1).getEmail(), staffList.get(1).getEmail());
+		assertEquals(findByDepartment_IdPaginated.get(1).getRegisteredTime(), staffList.get(1).getRegisteredTime());
+		verify(mockStaffDAO, times(1)).findByDepartment_Id(any(Integer.class), any(Pageable.class));
+		
+		logger.info("testFindByDepartmentIdPaginated is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindByDepartmentIdWithExceptionPaginated() {
+		logger.info("testFindByDepartmentIdWithException is started.");
+		
+		when(mockStaffDAO.findByDepartment_Id(any(Integer.class), any(Pageable.class))).thenReturn(new ArrayList<Staff>());
+		
+		staffService.findByDepartmentIdPaginated(staffList.get(0).getDepartment().getId(), 0, 2);
+		
+		logger.info("testFindByDepartmentIdWithException is successful.");
+	}
+	
+	@Test
 	public void testFindByIdAndDepartmentId() {
 		logger.info("testFindByIdAndDepartmentId is started.");
 		
@@ -341,6 +412,36 @@ public class StaffServiceTest {
 	}
 	
 	@Test
+	public void testFindByFirstNameAndDepartmentIdPaginated() {
+		logger.info("testFindByFirstNameAndDepartmentIdPaginated is started.");
+		
+		when(mockStaffDAO.findByFirstNameAndDepartment_Id(any(String.class), anyInt(), any(Pageable.class))).thenReturn(staffList);
+		
+		List<Staff> findByFirstNameAndDepartmentIdPaginated = staffService.findByFirstNameAndDepartmentIdPaginated("Ahmet", 2, 0, 2);
+		assertNotNull(findByFirstNameAndDepartmentIdPaginated);
+		assertEquals(findByFirstNameAndDepartmentIdPaginated.get(0).getFirstName(), staffList.get(0).getFirstName());
+		assertEquals(findByFirstNameAndDepartmentIdPaginated.get(0).getLastName(), staffList.get(0).getLastName());
+		assertEquals(findByFirstNameAndDepartmentIdPaginated.get(0).getPhone(), staffList.get(0).getPhone());
+		assertEquals(findByFirstNameAndDepartmentIdPaginated.get(0).getEmail(), staffList.get(0).getEmail());
+		assertEquals(findByFirstNameAndDepartmentIdPaginated.get(0).getRegisteredTime(), staffList.get(0).getRegisteredTime());
+		verify(mockStaffDAO, times(1)).findByFirstNameAndDepartment_Id(any(String.class), anyInt(), any(Pageable.class));
+		
+		logger.info("testFindByFirstNameAndDepartmentIdPaginated is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindByFirstNameAndDepartmentIdPaginatedWithException() {
+		logger.info("testFindByFirstNameAndDepartmentIdPaginatedWithException is started.");
+		
+		when(mockStaffDAO.findByFirstNameAndDepartment_Id(any(String.class), anyInt(), any(Pageable.class)))
+						.thenReturn(new ArrayList<Staff>());
+		
+		staffService.findByFirstNameAndDepartmentIdPaginated("Ahmet", 2, 0, 2);
+		
+		logger.info("testFindByFirstNameAndDepartmentIdPaginatedWithException is successful.");
+	}
+	
+	@Test
 	public void testFindByLastNameAndDepartmentId() {
 		logger.info("testFindByLastNameAndDepartmentId is started.");
 		
@@ -367,6 +468,36 @@ public class StaffServiceTest {
 		staffService.findByLastNameAndDepartmentId("ÇALIŞKAN", 2);
 		
 		logger.info("testFindByLastNameAndDepartmentIdWithException is successful.");
+	}
+	
+	@Test
+	public void testFindByLastNameAndDepartmentIdPaginated() {
+		logger.info("testFindByLastNameAndDepartmentIdPaginated is started.");
+		
+		when(mockStaffDAO.findByLastNameAndDepartment_Id(any(String.class), anyInt(), any(Pageable.class))).thenReturn(staffList);
+		
+		List<Staff> findByLastNameAndDepartmentIdPaginated = staffService.findByLastNameAndDepartmentIdPaginated("TEMBEL", 2, 0, 2);
+		assertNotNull(findByLastNameAndDepartmentIdPaginated);
+		assertEquals(findByLastNameAndDepartmentIdPaginated.get(0).getFirstName(), staffList.get(0).getFirstName());
+		assertEquals(findByLastNameAndDepartmentIdPaginated.get(0).getLastName(), staffList.get(0).getLastName());
+		assertEquals(findByLastNameAndDepartmentIdPaginated.get(0).getPhone(), staffList.get(0).getPhone());
+		assertEquals(findByLastNameAndDepartmentIdPaginated.get(0).getEmail(), staffList.get(0).getEmail());
+		assertEquals(findByLastNameAndDepartmentIdPaginated.get(0).getRegisteredTime(), staffList.get(0).getRegisteredTime());
+		verify(mockStaffDAO, times(1)).findByLastNameAndDepartment_Id(any(String.class), anyInt(), any(Pageable.class));
+		
+		logger.info("testFindByLastNameAndDepartmentIdPaginated is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testFindByLastNameAndDepartmentIdPaginatedWithException() {
+		logger.info("testFindByFirstNameAndDepartmentIdPaginatedWithException is started.");
+		
+		when(mockStaffDAO.findByLastNameAndDepartment_Id(any(String.class), anyInt(), any(Pageable.class)))
+						.thenReturn(new ArrayList<Staff>());
+		
+		staffService.findByLastNameAndDepartmentIdPaginated("TEMBEL", 2, 0, 2);
+		
+		logger.info("testFindByFirstNameAndDepartmentIdPaginatedWithException is successful.");
 	}
 	
 	@Test

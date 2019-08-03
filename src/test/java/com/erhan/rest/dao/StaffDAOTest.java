@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -49,7 +50,7 @@ public class StaffDAOTest {
 		staffDAO.flush();
 		
 		assertNotNull(staff.getId());
-		assertEquals(staff.getId(), 4);
+		assertEquals(staff.getId(), 7);
 		
 		logger.info("testSave is successful.");
 	}
@@ -62,10 +63,29 @@ public class StaffDAOTest {
 		List<Staff> allStaff = staffDAO.findAll();
 
 		assertNotNull(allStaff);
-		assertEquals(allStaff.size(), 3);
+		assertEquals(allStaff.size(), 6);
 		
 		logger.info("testFindAll is successful.");
 	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindAllPaginated() {
+		logger.info("testFindAllPaginated is started.");
+		
+		List<Staff> allStaff = staffDAO.findAll(PageRequest.of(0, 2)).getContent();
+
+		assertNotNull(allStaff);
+		assertEquals(allStaff.size(), 2);
+		assertEquals(allStaff.get(0).getFirstName(), "Simge");
+		
+		allStaff = staffDAO.findAll(PageRequest.of(1, 4)).getContent();
+		assertNotNull(allStaff);
+		assertEquals(allStaff.size(), 2);
+		assertEquals(allStaff.get(0).getFirstName(), "Emre");
+		
+		logger.info("testFindAllPaginated is successful.");
+	}	
 	
 	@Test
 	@Sql(scripts = {"classpath:restdbfortest.sql"})
@@ -100,7 +120,7 @@ public class StaffDAOTest {
 		
 		List<Staff> allStaff = staffDAO.findAll();
 		assertNotNull(allStaff);
-		assertEquals(allStaff.size(), 2);
+		assertEquals(allStaff.size(), 5);
 		
 		logger.info("testDelete is successful.");
 	}
@@ -180,7 +200,7 @@ public class StaffDAOTest {
 		Department departmentId2 = departmentDAO.findById(2).orElse(null);
 		List<Staff> findByDepartment = staffDAO.findByDepartment(departmentId2);
 		assertNotNull(findByDepartment);
-		assertEquals(findByDepartment.size(), 2);
+		assertEquals(findByDepartment.size(), 4);
 		assertEquals(findByDepartment.get(0).getDepartment().getDepartmentName(), departmentId2.getDepartmentName());
 		
 		logger.info("testFindByDepartment is successful.");
@@ -193,7 +213,7 @@ public class StaffDAOTest {
 
 		List<Staff> findByDepartment_Id = staffDAO.findByDepartment_Id(Integer.valueOf("2"));
 		assertNotNull(findByDepartment_Id);
-		assertEquals(findByDepartment_Id.size(), 2);
+		assertEquals(findByDepartment_Id.size(), 4);
 		assertEquals(findByDepartment_Id.get(0).getDepartment().getId(), 2);
 		assertEquals(findByDepartment_Id.get(0).getFirstName(), "Arzu");
 		
@@ -233,11 +253,33 @@ public class StaffDAOTest {
 
 		List<Staff> findByFirstNameAndDepartmentId = staffDAO.findByFirstNameAndDepartment_Id("Emre", 2);
 		assertNotNull(findByFirstNameAndDepartmentId);
-		assertEquals(findByFirstNameAndDepartmentId.size(), 1);
+		assertEquals(findByFirstNameAndDepartmentId.size(), 3);
 		assertEquals(findByFirstNameAndDepartmentId.get(0).getDepartment().getId(), 2);
 		assertEquals(findByFirstNameAndDepartmentId.get(0).getFirstName(), "Emre");
 		
 		logger.info("testFindByFirstNameAndDepartmentId is successful.");
+	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByFirstNameAndDepartmentIdPaginated() {
+		logger.info("testFindByFirstNameAndDepartmentIdPaginated is started.");
+
+		List<Staff> findByFirstNameAndDepartmentId = staffDAO.findByFirstNameAndDepartment_Id("Emre", 2, PageRequest.of(0, 2));
+		assertNotNull(findByFirstNameAndDepartmentId);
+		assertEquals(findByFirstNameAndDepartmentId.size(), 2);
+		assertEquals(findByFirstNameAndDepartmentId.get(0).getDepartment().getId(), 2);
+		assertEquals(findByFirstNameAndDepartmentId.get(0).getFirstName(), "Emre");
+		assertEquals(findByFirstNameAndDepartmentId.get(0).getLastName(), "BİNBAY");
+		
+		findByFirstNameAndDepartmentId = staffDAO.findByFirstNameAndDepartment_Id("Emre", 2, PageRequest.of(1, 2));
+		assertNotNull(findByFirstNameAndDepartmentId);
+		assertEquals(findByFirstNameAndDepartmentId.size(), 1);
+		assertEquals(findByFirstNameAndDepartmentId.get(0).getDepartment().getId(), 2);
+		assertEquals(findByFirstNameAndDepartmentId.get(0).getFirstName(), "Emre");
+		assertEquals(findByFirstNameAndDepartmentId.get(0).getLastName(), "YILMAZ");
+		
+		logger.info("testFindByFirstNameAndDepartmentIdPaginated is successful.");
 	}
 	
 	@Test
@@ -252,6 +294,28 @@ public class StaffDAOTest {
 		assertEquals(findByLastNameAndDepartmentId.get(0).getLastName(), "BİNBAY");
 		
 		logger.info("testFindByLastNameAndDepartmentId is successful.");
+	}
+	
+	@Test
+	@Sql(scripts = {"classpath:restdbfortest.sql"})
+	public void testFindByLastNameAndDepartmentIdPaginated() {
+		logger.info("testFindByLastNameAndDepartmentIdPaginated is started.");
+
+		List<Staff> findByLastNameAndDepartmentId = staffDAO.findByLastNameAndDepartment_Id("CİĞERLİOĞLU", 1, PageRequest.of(0, 1));
+		assertNotNull(findByLastNameAndDepartmentId);
+		assertEquals(findByLastNameAndDepartmentId.size(), 1);
+		assertEquals(findByLastNameAndDepartmentId.get(0).getDepartment().getId(), 1);
+		assertEquals(findByLastNameAndDepartmentId.get(0).getFirstName(), "Simge");
+		assertEquals(findByLastNameAndDepartmentId.get(0).getLastName(), "CİĞERLİOĞLU");
+		
+		findByLastNameAndDepartmentId = staffDAO.findByLastNameAndDepartment_Id("CİĞERLİOĞLU", 1, PageRequest.of(1, 1));
+		assertNotNull(findByLastNameAndDepartmentId);
+		assertEquals(findByLastNameAndDepartmentId.size(), 1);
+		assertEquals(findByLastNameAndDepartmentId.get(0).getDepartment().getId(), 1);
+		assertEquals(findByLastNameAndDepartmentId.get(0).getFirstName(), "Merve");
+		assertEquals(findByLastNameAndDepartmentId.get(0).getLastName(), "CİĞERLİOĞLU");
+		
+		logger.info("testFindByLastNameAndDepartmentIdPaginated is successful.");
 	}
 	
 	@Test
