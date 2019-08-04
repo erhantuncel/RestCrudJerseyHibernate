@@ -1,5 +1,6 @@
 package com.erhan.rest.resource;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.ws.rs.BeanParam;
@@ -11,7 +12,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,39 +44,55 @@ public class DepartmentResource {
 	
 	@GET
 	@Path("/{departmentId}")
-	public Department getDepartmentById(@PathParam("departmentId") Integer id) {
+	public Response getDepartmentById(@PathParam("departmentId") Integer id) {
 		logger.info("getDepartmentById method is invoked.");
-		return departmentService.findById(id);
+		Department department = departmentService.findById(id);
+		Response response = Response.status(Status.OK)
+				.entity(department)
+				.build();
+		return response;
 	}
 	
 	@GET
-	public List<Department> getAllDepartments(@BeanParam DepartmentFilterBean filterBean) {
+	public Response getAllDepartments(@BeanParam DepartmentFilterBean filterBean) {
 		logger.info("getAllDepartments method is invoked.");
+		List<Department> departmentList = null;
 		if(filterBean.getPage() != null && filterBean.getSize() != null) {
-			return departmentService.findAllPaginated(filterBean.getPage(), filterBean.getSize());
+			departmentList = departmentService.findAllPaginated(filterBean.getPage(), filterBean.getSize());
+		} else {
+			departmentList = departmentService.findAll();
 		}
-		return departmentService.findAll();
+		Response response = Response.status(Status.OK).entity(departmentList).build();
+		return response;
 	}
 	
 	@POST
-	public void createDepartment(Department department) {
+	public Response createDepartment(Department department, @Context UriInfo uriInfo) {
 		logger.info("createDepartment method is invoked.");
 		departmentService.create(department);
+		String departmentId = String.valueOf(department.getId());
+		URI uri = uriInfo.getAbsolutePathBuilder().path(departmentId).build();
+		Response response = Response.created(uri).entity(department).build();
+		return response;
 	}
 	
 	@PUT
 	@Path("/{departmentId}")
-	public void updateDepartment(@PathParam("departmentId") Integer departmentId, Department department) {
+	public Response updateDepartment(@PathParam("departmentId") Integer departmentId, Department department) {
 		logger.info("updateDepartment method is invoked.");
 		department.setId(departmentId);
 		departmentService.update(department);
+		Response response = Response.status(Status.OK).entity(department).build();
+		return response;
 	}
 	
 	@DELETE
 	@Path("/{departmentId}")
-	public void deleteDepartment(@PathParam("departmentId") Integer departmentId) {
+	public Response deleteDepartment(@PathParam("departmentId") Integer departmentId) {
 		logger.info("deleteDepartment method is invoked.");
 		departmentService.removeById(departmentId);
+		Response response = Response.status(Status.OK).build();
+		return response;
 	}
 	
 	@Path("/{departmentId}/staffs")
