@@ -1,5 +1,6 @@
 package com.erhan.rest.resource;
 
+import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
 
@@ -14,16 +15,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.erhan.rest.model.Department;
 import com.erhan.rest.model.Staff;
-import com.erhan.rest.service.DepartmentService;
 import com.erhan.rest.service.StaffService;
 
 @Path("/")
@@ -37,11 +38,8 @@ public class StaffResource {
 	@Autowired
 	private StaffService staffService;
 	
-	@Autowired
-	private DepartmentService departmentService;
-	
 	@GET
-	public List<Staff> getAllStaffByDepartmentId(@PathParam("departmentId") Integer departmentId,
+	public Response getAllStaffByDepartmentId(@PathParam("departmentId") Integer departmentId,
 											 	 @Context UriInfo allUri) throws ParseException {
 		MultivaluedMap<String,String> queryParameters = allUri.getQueryParameters();
 		logger.info("getAllStaffByDepartmentId method is invoked with " + queryParameters.size() + " parameters");
@@ -50,71 +48,55 @@ public class StaffResource {
 				logger.info("Query param " + key + " is  = " + queryParameters.getFirst(key));
 			}			
 		}
-		
+		List<Staff> staffList = null;
 		if(queryParameters.size() == 0) {
-			return staffService.findByDepartmentId(departmentId);
+			staffList = staffService.findByDepartmentId(departmentId);
 		} else {
-			return staffService.findByDepartmentIdAndQueryParameters(departmentId, queryParameters);
+			staffList = staffService.findByDepartmentIdAndQueryParameters(departmentId, queryParameters);
 		}
+		Response response = Response.status(Status.OK).entity(staffList).build();
+		return response;
 	}
 	
 	@GET
 	@Path("{staffId}")
-	public Staff getStaffByIdAndDepartmentId(@PathParam("departmentId") Integer departmentId,
+	public Response getStaffByIdAndDepartmentId(@PathParam("departmentId") Integer departmentId,
 											 @PathParam("staffId") Integer staffId) {
 		logger.info("getStaffByIdAndDepartmentId method is invoked.");
-		return staffService.findByIdAndDepartmentId(staffId, departmentId);
+		Staff staff = staffService.findByIdAndDepartmentId(staffId, departmentId);
+		Response response = Response.status(Status.OK).entity(staff).build();
+		return response;
 	}
 	
 	@POST
-	public Staff createStaffForDepartment(@PathParam("departmentId") Integer departmentId,
-										 Staff staff) {
+	public Response createStaffForDepartment(@PathParam("departmentId") Integer departmentId,
+										 Staff staff, @Context UriInfo uriInfo) {
 		logger.info("createStaffForDepartment method is invoked.");
-		Department departmentById = departmentService.findById(departmentId);
-		if(departmentById == null) {
-			return null;
-		}
-		staff.setDepartment(departmentById);
-		staffService.create(staff);
-		return staff;
+		staffService.createWithDepartmentId(staff, departmentId);
+		String staffId = String.valueOf(staff.getId());
+		URI uri = uriInfo.getAbsolutePathBuilder().path(staffId).build();
+		Response response = Response.created(uri).entity(staff).build();
+		return response;
 	}
 	
 	@PUT
 	@Path("/{staffId}")
-	public Staff updateStaffForDepartment(@PathParam("departmentId") Integer departmentId,
+	public Response updateStaffForDepartment(@PathParam("departmentId") Integer departmentId,
 										  @PathParam("staffId") Integer staffId,
 										  Staff staff) {
 		logger.info("updateStaffForDepartment method is invoked.");
-		List<Staff> staffListForDepartmentId = staffService.findByDepartmentId(departmentId);
-		Staff staffToUpdate = staffService.findById(staffId);
-		if(staffListForDepartmentId.size() <= 0) {
-			return null;
-		} else if(!staffListForDepartmentId.contains(staffToUpdate)) {
-			return null;
-		} else if(staffToUpdate.getId() != staff.getId()) {
-			return null;
-		}
-		staffToUpdate.setFirstName(staff.getFirstName());
-		staffToUpdate.setLastName(staff.getLastName());
-		staffToUpdate.setPhone(staff.getPhone());
-		staffToUpdate.setEmail(staff.getEmail());
-		staffToUpdate.setRegisteredTime(staff.getRegisteredTime());
-		staffService.update(staffToUpdate);
-		return staffToUpdate;
+		staffService.updateWithDepartmentId(staffId, departmentId, staff);
+		Response response = Response.status(Status.OK).entity(staff).build();
+		return response;
 	}
 	
 	@DELETE
 	@Path("/{staffId}")
-	public void deleteStaffForDepartment(@PathParam("departmentId") Integer departmentId,
+	public Response deleteStaffForDepartment(@PathParam("departmentId") Integer departmentId,
 			  							 @PathParam("staffId") Integer staffId) {
 		logger.info("deleteStaffForDepartment method is invoked.");
-		List<Staff> staffListForDepartmentId = staffService.findByDepartmentId(departmentId);
-		Staff staffToDelete = staffService.findById(staffId);
-		if((staffListForDepartmentId.size() > 0) && staffListForDepartmentId.contains(staffToDelete)) {
-			Department department = departmentService.findById(departmentId);
-			department.getStaffList().remove(staffToDelete);
-			departmentService.update(department);
-			staffService.remove(staffToDelete);
-		} 
+		staffService.removeWithDepartmentId(staffId, departmentId);
+		Response response = Response.status(Status.NO_CONTENT).build();
+		return response;
 	}
 }
