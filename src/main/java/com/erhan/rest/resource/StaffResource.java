@@ -1,10 +1,7 @@
 package com.erhan.rest.resource;
 
-import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -45,60 +42,19 @@ public class StaffResource {
 	
 	@GET
 	public List<Staff> getAllStaffByDepartmentId(@PathParam("departmentId") Integer departmentId,
-											 	 @Context UriInfo allUri) {
-		logger.info("getAllStaffByDepartmentId method is invoked.");
+											 	 @Context UriInfo allUri) throws ParseException {
 		MultivaluedMap<String,String> queryParameters = allUri.getQueryParameters();
-		Set<String> keySet = null;
+		logger.info("getAllStaffByDepartmentId method is invoked with " + queryParameters.size() + " parameters");
 		if(queryParameters.size() > 0) {
-			keySet = queryParameters.keySet();
 			for(String key : queryParameters.keySet()) {
 				logger.info("Query param " + key + " is  = " + queryParameters.getFirst(key));
 			}			
 		}
 		
-		if(queryParameters.size() > 2) {
-			return null;
-		}
-		
-		List<Staff> staffListForDepartmentId = staffService.findByDepartmentId(departmentId);
-		if(staffListForDepartmentId == null) {
-			return null;
-		} else if(queryParameters.size() == 2) {
-			if(!keySet.contains("page") || !keySet.contains("size")) {
-				return null;
-			}
-			logger.info("Pagination");
-			return staffListForDepartmentId;
-		} else if(queryParameters.size() == 1) {
-			if(keySet.contains("firstName")) {
-				return staffListForDepartmentId.stream()
-						.filter(s -> s.getFirstName().equalsIgnoreCase(queryParameters.getFirst("firstName")))
-						.collect(Collectors.toList());
-			} 
-			if(keySet.contains("lastName")) {
-				return staffListForDepartmentId.stream()
-						.filter(s -> s.getLastName().equalsIgnoreCase(queryParameters.getFirst("lastName")))
-						.collect(Collectors.toList());
-			}
-			if(keySet.contains("phone")) {
-				return staffListForDepartmentId.stream()
-						.filter(s -> s.getPhone().equals(queryParameters.getFirst("phone")))
-						.collect(Collectors.toList());
-			}
-			if(keySet.contains("email")) {
-				return staffListForDepartmentId.stream()
-						.filter(s -> s.getEmail()!=null && s.getEmail().equalsIgnoreCase(queryParameters.getFirst("email")))
-						.collect(Collectors.toList());
-			}
-			if(keySet.contains("registeredTime")) {
-				SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.forLanguageTag("tr"));
-				return staffListForDepartmentId.stream()
-						.filter(s -> df.format(s.getRegisteredTime()).equals(queryParameters.getFirst("registeredTime")))
-						.collect(Collectors.toList());
-			}
-			return null;
+		if(queryParameters.size() == 0) {
+			return staffService.findByDepartmentId(departmentId);
 		} else {
-			return staffListForDepartmentId;
+			return staffService.findByDepartmentIdAndQueryParameters(departmentId, queryParameters);
 		}
 	}
 	
@@ -107,14 +63,7 @@ public class StaffResource {
 	public Staff getStaffByIdAndDepartmentId(@PathParam("departmentId") Integer departmentId,
 											 @PathParam("staffId") Integer staffId) {
 		logger.info("getStaffByIdAndDepartmentId method is invoked.");
-		List<Staff> staffListForDepartmentId = staffService.findByDepartmentId(departmentId);
-		Staff staffFoundById = staffService.findById(staffId);
-		if( staffListForDepartmentId.size() <= 0) {
-			return null;
-		} else if(!staffListForDepartmentId.contains(staffFoundById)) {
-			return null;
-		}
-		return staffFoundById;
+		return staffService.findByIdAndDepartmentId(staffId, departmentId);
 	}
 	
 	@POST

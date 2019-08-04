@@ -1,8 +1,10 @@
 package com.erhan.rest.service;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import javax.ws.rs.core.MultivaluedMap;
 
 import com.erhan.rest.model.Department;
 import com.erhan.rest.model.Staff;
@@ -24,11 +26,12 @@ public interface StaffService {
 	public List<Staff> findByDepartmentId(Integer id);
 	public List<Staff> findByDepartmentIdPaginated(Integer id, int page, int pageSize);
 	public Staff findByIdAndDepartmentId(Integer staffId, Integer departmentId);
-	public Staff findByFirstNameAndDepartmentId(String firstName, Integer departmentId);
+	public List<Staff> findByFirstNameAndDepartmentId(String firstName, Integer departmentId);
 	public List<Staff> findByFirstNameAndDepartmentIdPaginated(String firstName, Integer departmentId, int page, int pageSize);
-	public Staff findByLastNameAndDepartmentId(String lastName, Integer departmentId);
+	public List<Staff> findByLastNameAndDepartmentId(String lastName, Integer departmentId);
 	public List<Staff> findByLastNameAndDepartmentIdPaginated(String lastName, Integer departmentId, int page, int pageSize);
-	public Staff findByPhoneAndDepartmentId(String phone, Integer departmentId);
-	public Staff findByEmailAndDepartmentId(String email, Integer departmentId);
-	public Staff findByRegisteredTimeAndDepartmentId(Date registeredTime, Integer departmentId);
+	public List<Staff> findByPhoneAndDepartmentId(String phone, Integer departmentId);
+	public List<Staff> findByEmailAndDepartmentId(String email, Integer departmentId);
+	public List<Staff> findByRegisteredTimeAndDepartmentId(Date registeredTime, Integer departmentId);
+	public List<Staff> findByDepartmentIdAndQueryParameters(Integer departmentId, MultivaluedMap<String, String> queryParameters) throws ParseException; 
 }
