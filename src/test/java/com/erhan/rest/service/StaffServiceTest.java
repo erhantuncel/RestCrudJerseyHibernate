@@ -188,6 +188,72 @@ public class StaffServiceTest {
 	}
 	
 	@Test
+	public void testRemoveWithDepartmentId() {
+		logger.info("testRemoveWithDepartmentId is started.");
+		
+		when(mockDepartmentDAO.findById(anyInt())).thenReturn(Optional.of(department));
+		when(mockStaffDAO.findById(anyInt())).thenReturn(Optional.of(staff));
+		
+		staffService.removeWithDepartmentId(1, 1);
+		
+		verify(mockDepartmentDAO, times(1)).findById(anyInt());
+		verify(mockStaffDAO, times(1)).findById(anyInt());
+		verify(mockDepartmentDAO, times(1)).save(any(Department.class));
+		
+		logger.info("testRemoveWithDepartmentId is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testRemoveWithDepartmentIdWithNotFoundDepartment() {
+		logger.info("testRemoveWithDepartmentIdWithNotFoundDepartment is started.");
+		
+		when(mockDepartmentDAO.findById(anyInt())).thenReturn(Optional.empty());
+		when(mockStaffDAO.findById(anyInt())).thenReturn(Optional.of(staff));
+		
+		staffService.removeWithDepartmentId(1, 1);
+		
+		verify(mockDepartmentDAO, times(1)).findById(anyInt());
+		verify(mockStaffDAO, times(1)).findById(anyInt());
+		verify(mockDepartmentDAO, times(1)).save(any(Department.class));
+		
+		logger.info("testRemoveWithDepartmentIdWithNotFoundDepartment is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testRemoveWithDepartmentIdWithNotFoundStaff() {
+		logger.info("testRemoveWithDepartmentIdWithNotFoundStaff is started.");
+		
+		when(mockDepartmentDAO.findById(anyInt())).thenReturn(Optional.of(department));
+		when(mockStaffDAO.findById(anyInt())).thenReturn(Optional.empty());
+		
+		staffService.removeWithDepartmentId(1, 1);
+		
+		verify(mockDepartmentDAO, times(1)).findById(anyInt());
+		verify(mockStaffDAO, times(1)).findById(anyInt());
+		verify(mockDepartmentDAO, times(1)).save(any(Department.class));
+		
+		logger.info("testRemoveWithDepartmentIdWithNotFoundStaff is successful.");
+	}
+	
+	@Test(expected = BadRequestException.class)
+	public void testRemoveWithDepartmentIdWithBadRequest() {
+		logger.info("testRemoveWithDepartmentIdWithBadRequest is started.");
+		
+		Staff unknownStaff = new Staff("Mehmet", "ÇALIŞKAN", "1231231231", "mehmet2@abc.com", new Date(), department);
+		
+		when(mockDepartmentDAO.findById(anyInt())).thenReturn(Optional.of(department));
+		when(mockStaffDAO.findById(anyInt())).thenReturn(Optional.of(unknownStaff));
+		
+		staffService.removeWithDepartmentId(1, 1);
+		
+		verify(mockDepartmentDAO, times(1)).findById(anyInt());
+		verify(mockStaffDAO, times(1)).findById(anyInt());
+		verify(mockDepartmentDAO, times(1)).save(any(Department.class));
+		
+		logger.info("testRemoveWithDepartmentIdWithBadRequest is successful.");
+	}
+	
+	@Test
 	public void testFindById() {
 		logger.info("testFindById is started.");
 		

@@ -16,6 +16,7 @@ public interface StaffService {
 	public void update(Staff staff);
 	public void updateWithDepartmentId(Integer staffId, Integer departmentId, Staff staff);
 	public void remove(Staff staff);
+	public void removeWithDepartmentId(Integer staffId, Integer departmentId);
 	public Staff findById(Integer id);
 	public List<Staff> findAll();
 	public List<Staff> findAllPaginated(int page, int pageSize);
