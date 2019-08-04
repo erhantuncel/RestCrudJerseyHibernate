@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.logging.log4j.LogManager;
@@ -56,6 +57,7 @@ public class StaffServiceTest {
 		staffList = new ArrayList<Staff>();
 		staffList.add(staff);
 		staffList.add(new Staff("Ahmet", "TEMBEL", "9879879879", "ahmet@abc.com", new Date(), department));
+		department.getStaffList().add(staff);
 	}
 
 	@Test
@@ -105,6 +107,73 @@ public class StaffServiceTest {
 		verify(mockStaffDAO, times(1)).save(any(Staff.class));
 		
 		logger.info("testUpdate is successful.");
+	}
+	
+	@Test
+	public void testUpdateWithDepartmentId() {
+		logger.info("testUpdateWithDepartmentId is started.");
+		
+		when(mockDepartmentDAO.findById(anyInt())).thenReturn(Optional.of(department));
+		when(mockStaffDAO.findById(anyInt())).thenReturn(Optional.of(staff));
+		
+		Staff staffUpdate = new Staff("Mehmet", "ÇALIŞKAN", "4564564566", "mehmet2@abc.com", new Date(), department);
+		staffService.updateWithDepartmentId(1,1, staffUpdate);
+		
+		verify(mockDepartmentDAO, times(1)).findById(anyInt());
+		verify(mockStaffDAO, times(1)).findById(anyInt());
+		assertEquals(staff.getPhone(), staffUpdate.getPhone());
+		assertEquals(staff.getEmail(), staffUpdate.getEmail());
+		
+		logger.info("testUpdateWithDepartmentId is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testUpdateWithDepartmentIdWithNotFoundDepartment() {
+		logger.info("testUpdateWithDepartmentIdWithNotFoundDepartment is started.");
+		
+		when(mockDepartmentDAO.findById(anyInt())).thenReturn(Optional.empty());
+		when(mockStaffDAO.findById(anyInt())).thenReturn(Optional.of(staff));
+		
+		Staff staffUpdate = new Staff("Mehmet", "ÇALIŞKAN", "4564564566", "mehmet2@abc.com", new Date(), department);
+		staffService.updateWithDepartmentId(1, 1, staffUpdate);
+		
+		verify(mockDepartmentDAO, times(1)).findById(anyInt());
+		
+		logger.info("testUpdateWithDepartmentIdWithNotFoundDepartment is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testUpdateWithDepartmentIdWithNotFoundStaff() {
+		logger.info("testUpdateWithDepartmentIdWithNotFoundStaff is started.");
+		
+		when(mockDepartmentDAO.findById(anyInt())).thenReturn(Optional.of(department));
+		when(mockStaffDAO.findById(anyInt())).thenReturn(Optional.empty());
+		
+		Staff staffUpdate = new Staff("Mehmet", "ÇALIŞKAN", "4564564566", "mehmet2@abc.com", new Date(), department);
+		staffService.updateWithDepartmentId(1, 1, staffUpdate);
+		
+		verify(mockDepartmentDAO, times(1)).findById(anyInt());
+		verify(mockStaffDAO, times(1)).findById(anyInt());
+		
+		logger.info("testUpdateWithDepartmentIdWithNotFoundStaff is successful.");
+	}
+	
+	@Test(expected = BadRequestException.class)
+	public void testUpdateWithDepartmentIdWithBadRequestException() {
+		logger.info("testUpdateWithDepartmentId is started.");
+		
+		Staff unknownStaff = new Staff("Mehmet", "ÇALIŞKAN", "1231231231", "mehmet2@abc.com", new Date(), department);
+		
+		when(mockDepartmentDAO.findById(anyInt())).thenReturn(Optional.of(department));
+		when(mockStaffDAO.findById(anyInt())).thenReturn(Optional.of(unknownStaff));
+		
+		Staff staffUpdate = new Staff("Mehmet", "ÇALIŞKAN", "4564564566", "mehmet2@abc.com", new Date(), department);
+		staffService.updateWithDepartmentId(1, 1, staffUpdate);
+		
+		verify(mockDepartmentDAO, times(1)).findById(anyInt());
+		verify(mockStaffDAO, times(1)).findById(anyInt());
+		
+		logger.info("testUpdateWithDepartmentId is successful.");
 	}
 	
 	@Test

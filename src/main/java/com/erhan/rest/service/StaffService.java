@@ -14,6 +14,7 @@ public interface StaffService {
 	public void create(Staff staff);
 	public void createWithDepartmentId(Staff staff, Integer departmentId);
 	public void update(Staff staff);
+	public void updateWithDepartmentId(Integer staffId, Integer departmentId, Staff staff);
 	public void remove(Staff staff);
 	public Staff findById(Integer id);
 	public List<Staff> findAll();

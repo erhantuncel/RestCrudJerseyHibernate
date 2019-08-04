@@ -53,6 +53,26 @@ public class StaffServiceImpl implements StaffService {
 	}
 
 	@Override
+	public void updateWithDepartmentId(Integer staffId, Integer departmentId, Staff staff) {
+		Department department = departmentDAO.findById(departmentId).orElse(null);
+		if(department == null) {
+			throw new NotFoundException("Department with id = " + departmentId + " not found!");
+		}
+		Staff staffFromDb = staffDAO.findById(staffId).orElse(null);
+		if(staffFromDb == null) {
+			throw new NotFoundException("Staff with id = " + staffId + " not found!");
+		}
+		if(!department.getStaffList().contains(staffFromDb)) {
+			throw new BadRequestException("Department with id = " + departmentId + 
+					" does not have staff with id = " + staffId);
+			
+		}
+		staffFromDb.setPhone(staff.getPhone());
+		staffFromDb.setEmail(staff.getEmail());
+		staffDAO.save(staffFromDb);
+	}
+	
+	@Override
 	public void remove(Staff entity) {
 		staffDAO.delete(entity);
 	}
@@ -250,6 +270,8 @@ public class StaffServiceImpl implements StaffService {
 			throw new BadRequestException("Too much query parameters!");
 		}
 	}
+
+	
 
 	
 	
