@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.erhan.rest.dao.DepartmentDAO;
 import com.erhan.rest.dao.StaffDAO;
 import com.erhan.rest.model.Department;
 import com.erhan.rest.model.Staff;
@@ -28,11 +29,24 @@ public class StaffServiceImpl implements StaffService {
 	@Autowired
 	private StaffDAO staffDAO;
 	
+	@Autowired
+	private DepartmentDAO departmentDAO;
+	
 	@Override
 	public void create(Staff entity) {
 		staffDAO.save(entity);
 	}
 
+	@Override
+	public void createWithDepartmentId(Staff staff, Integer departmentId) {
+		Department department = departmentDAO.findById(departmentId).orElse(null);
+		if(department == null) {
+			throw new NotFoundException("Department with id = " + departmentId + " not found!");
+		}
+		staff.setDepartment(department);
+		staffDAO.save(staff);
+	}
+	
 	@Override
 	public void update(Staff entity) {
 		staffDAO.save(entity);
@@ -236,4 +250,7 @@ public class StaffServiceImpl implements StaffService {
 			throw new BadRequestException("Too much query parameters!");
 		}
 	}
+
+	
+	
 }

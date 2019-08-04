@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
+import com.erhan.rest.dao.DepartmentDAO;
 import com.erhan.rest.dao.StaffDAO;
 import com.erhan.rest.model.Department;
 import com.erhan.rest.model.Staff;
@@ -34,6 +35,9 @@ public class StaffServiceTest {
 	
 	@Mock
 	StaffDAO mockStaffDAO;
+	
+	@Mock
+	DepartmentDAO mockDepartmentDAO;
 	
 	@Mock
 	Page<Staff> mockPageStaff;
@@ -63,6 +67,33 @@ public class StaffServiceTest {
 		verify(mockStaffDAO, times(1)).save(any(Staff.class));
 		
 		logger.info("testCreate is successful.");
+	}
+	
+	@Test
+	public void testCreateWithDepartmentId() {
+		logger.info("testCreateWithDepartmentId is started.");
+		
+		when(mockDepartmentDAO.findById(anyInt())).thenReturn(Optional.of(department));
+		
+		staffService.createWithDepartmentId(staff, 2);
+		assertEquals(staff.getDepartment(), department);
+		
+		verify(mockDepartmentDAO, times(1)).findById(anyInt());
+		verify(mockStaffDAO, times(1)).save(any(Staff.class));
+		
+		logger.info("testCreateWithDepartmentId is successful.");
+	}
+	
+	@Test(expected = NotFoundException.class)
+	public void testCreateWithDepartmentIdWithException() {
+		logger.info("testCreateWithDepartmentIdWithException is started.");
+		when(mockDepartmentDAO.findById(anyInt())).thenReturn(Optional.empty());
+		
+		staffService.createWithDepartmentId(staff, 2);
+		
+		verify(mockDepartmentDAO, times(1)).findById(anyInt());
+		
+		logger.info("testCreateWithDepartmentIdWithException is successful.");
 	}
 	
 	@Test
