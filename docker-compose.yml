@@ -1,0 +1,22 @@
+version: '3.9'
+services:
+  postgresql:
+    restart: always
+    image: postgres:alpine
+    container_name: postgres-container
+    environment:
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: staffdb
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  tomcat:
+    restart: always
+    depends_on:
+      - postgresql
+    container_name: tomcat-8-5-41
+    build: .
+    command: sh -c './wait-for postgresql:5432 -- catalina.sh run'
+    ports:
+      - 8080:8080
